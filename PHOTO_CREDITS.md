@@ -18,13 +18,9 @@ product photos before selling from the site.
 | `skirt-black-daisy.jpg` | [Alvensia Angela](https://unsplash.com/@alvensiangela) |
 | `skirt-rust.jpg` | [Brooke Cagle](https://unsplash.com/@brookecagle) |
 | `skirt-blue-floral.jpg` | [Sergio Martins](https://unsplash.com/@smartins20) |
-| `top-blue-cami.jpg`, `top-pink-tank.jpg` | [engin akyurt](https://unsplash.com/@enginakyurt) |
-| `top-navy-shirt.jpg` | [Napat Saeng](https://unsplash.com/@napats) |
-| `top-white-long-sleeve.jpg` | [Haley Hydorn](https://unsplash.com/@h_hydorn) |
-| `top-white-tie-front.jpg` | [ola szkolda](https://unsplash.com/@olaszkolda) |
-| `top-black-tee.jpg` | [Dung Anh](https://unsplash.com/@anhdung) |
-| `top-cream-lace.jpg` | [mahdi chaghari](https://unsplash.com/@mahdi_chf) |
-| `top-black-long-sleeve.jpg` | [Helen Ast](https://unsplash.com/@helenaast) |
+| `top-blue-cami.jpg`, `top-pink-tank.jpg`, `top-beige-v.jpg`, `top-white-button.jpg`, `top-sage-tank.jpg`, `top-lavender-halter.jpg` | [engin akyurt](https://unsplash.com/@enginakyurt) |
+| `top-white-asymmetric.jpg` | [McFollis](https://unsplash.com/@thisismcfollis), cropped |
+| `top-cherry-corset.jpg` | AI-generated, not a photograph |
 | `purse-teal.jpg` | [Diana Light](https://unsplash.com/@dreamcatchlight) |
 | `purse-navy.jpg` | [Irene Kredenets](https://unsplash.com/@ikredenets) |
 | `purse-striped.jpg`, `purse-black-tote.jpg` | [Stephen Audu](https://unsplash.com/@blaq1sensei) |
