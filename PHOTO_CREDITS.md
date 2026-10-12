@@ -10,7 +10,7 @@ product photos before selling from the site.
 | File | Photographer |
 | --- | --- |
 | `hero-skirt-rail.jpg` | AI-generated, not a photograph |
-| `skirt-*.jpg` (seven images) | AI-generated, supplied by the store owner; not photographs |
+| `skirt-*.jpg` (eight images) | AI-generated, supplied by the store owner; not photographs |
 | `top-blue-cami.jpg`, `top-pink-tank.jpg`, `top-beige-v.jpg`, `top-white-button.jpg`, `top-sage-tank.jpg`, `top-lavender-halter.jpg` | [engin akyurt](https://unsplash.com/@enginakyurt) |
 | `top-white-asymmetric.jpg` | [McFollis](https://unsplash.com/@thisismcfollis), cropped |
 | `top-cherry-corset.jpg` | AI-generated, not a photograph |
