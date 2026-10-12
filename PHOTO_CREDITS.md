@@ -10,14 +10,7 @@ product photos before selling from the site.
 | File | Photographer |
 | --- | --- |
 | `hero-skirt-rail.jpg` | AI-generated, not a photograph |
-| `skirt-pink-maxi.jpg` | [Michael Kyule](https://unsplash.com/@madness_leahcim_) |
-| `skirt-white-tiered.jpg` | [Chidera Faustina Okeke](https://unsplash.com/@thefourthwxll) |
-| `skirt-printed-maxi.jpg` | [Dion Martins](https://unsplash.com/@dionmartins) |
-| `skirt-leopard.jpg` | [Matias Ilizarbe](https://unsplash.com/@matias_ilizarbe) |
-| `skirt-sand-maxi.jpg` | [Lisda Kania Yuliani](https://unsplash.com/@kanialda) |
-| `skirt-black-daisy.jpg` | [Alvensia Angela](https://unsplash.com/@alvensiangela) |
-| `skirt-rust.jpg` | [Brooke Cagle](https://unsplash.com/@brookecagle) |
-| `skirt-blue-floral.jpg` | [Sergio Martins](https://unsplash.com/@smartins20) |
+| `skirt-*.jpg` (seven images) | AI-generated, supplied by the store owner; not photographs |
 | `top-blue-cami.jpg`, `top-pink-tank.jpg`, `top-beige-v.jpg`, `top-white-button.jpg`, `top-sage-tank.jpg`, `top-lavender-halter.jpg` | [engin akyurt](https://unsplash.com/@enginakyurt) |
 | `top-white-asymmetric.jpg` | [McFollis](https://unsplash.com/@thisismcfollis), cropped |
 | `top-cherry-corset.jpg` | AI-generated, not a photograph |
