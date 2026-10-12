@@ -1,13 +1,15 @@
 @import "tailwindcss";
 
+/* Light palette: baby pink page, white surfaces, cherry for headings and
+   actions, deep wine for text, and sage green as the one contrasting accent. */
 @theme {
-  --color-wall: #f6c6d0;
-  --color-blush: #fff7f8;
-  --color-tile: #fce9ed;
-  --color-petal: #fbdde4;
-  --color-cherry: #a3123a;
-  --color-cherry-deep: #5c0a20;
-  --color-rosewood: #96586a;
+  --color-blush: #fce8ec;
+  --color-petal: #f3c9d2;
+  --color-cherry: #b5123e;
+  --color-wine: #4a1420;
+  --color-rose: #86535f;
+  --color-sage: #c6d2bd;
+  --color-sage-deep: #4f6648;
 }
 
 @theme inline {
@@ -21,12 +23,26 @@ html {
 
 body {
   background: var(--color-blush);
-  color: var(--color-cherry-deep);
+  color: var(--color-wine);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-cherry);
   outline-offset: 3px;
+}
+
+/* On a page that opens with a full-width hero photo, the header sits on top
+   of the photo instead of above it. */
+.site-header:has(+ main > .hero) {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  border-color: transparent;
+  background: transparent;
+}
+
+.site-header:has(+ main > .hero) a {
+  color: #fff;
 }
 
 /* Product card: lifts on hover or keyboard focus and opens a details panel
@@ -37,26 +53,32 @@ body {
 
 .product-card__inner {
   position: relative;
+  border-radius: 10px;
+  background: #fff;
   transition:
     transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
     filter 0.3s;
 }
 
-.product-card__backdrop {
-  position: absolute;
-  inset: -12px -12px 0;
+.product-card__photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
   border-radius: 10px 10px 0 0;
-  background: #fff;
-  opacity: 0;
-  transition: opacity 0.2s;
+  /* Shown while the photo loads. */
+  background: var(--color-petal);
+}
+
+.product-card__photo img {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .product-card__details {
   position: absolute;
-  left: -12px;
-  right: -12px;
+  left: 0;
+  right: 0;
   top: calc(100% - 1px);
-  padding: 2px 12px 16px;
+  padding: 0 16px 16px;
   border-radius: 0 0 10px 10px;
   background: #fff;
   opacity: 0;
@@ -66,29 +88,23 @@ body {
     visibility 0.2s;
 }
 
-.product-card__art {
-  filter: drop-shadow(0 8px 10px rgb(92 10 32 / 0.14));
-  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
 .product-card:hover .product-card__inner,
 .product-card:focus-visible .product-card__inner {
   z-index: 20;
   transform: scale(1.05);
-  filter: drop-shadow(0 18px 26px rgb(92 10 32 / 0.2));
+  border-radius: 10px 10px 0 0;
+  filter: drop-shadow(0 16px 24px rgb(74 20 32 / 0.2));
 }
 
-.product-card:hover .product-card__backdrop,
-.product-card:focus-visible .product-card__backdrop,
 .product-card:hover .product-card__details,
 .product-card:focus-visible .product-card__details {
   opacity: 1;
   visibility: visible;
 }
 
-.product-card:hover .product-card__art,
-.product-card:focus-visible .product-card__art {
-  transform: scale(1.08);
+.product-card:hover .product-card__photo img,
+.product-card:focus-visible .product-card__photo img {
+  transform: scale(1.06);
 }
 
 .product-card:focus-visible {
@@ -101,14 +117,14 @@ body {
   }
 
   .product-card__inner,
-  .product-card__art {
+  .product-card__photo img {
     transition: none;
   }
 
   .product-card:hover .product-card__inner,
   .product-card:focus-visible .product-card__inner,
-  .product-card:hover .product-card__art,
-  .product-card:focus-visible .product-card__art {
+  .product-card:hover .product-card__photo img,
+  .product-card:focus-visible .product-card__photo img {
     transform: none;
   }
 }

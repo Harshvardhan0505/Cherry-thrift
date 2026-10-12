@@ -20,11 +20,11 @@ export function CategoryView({ slug }: { slug: CategorySlug }) {
   return (
     <div className="px-[6vw] pb-32 pt-14">
       <header className="text-center">
-        <h1 className="font-serif text-6xl text-cherry-deep md:text-7xl">{category.label}</h1>
-        <p className="mx-auto mt-4 max-w-xl text-rosewood">{category.blurb}</p>
+        <h1 className="font-serif text-6xl text-cherry md:text-7xl">{category.label}</h1>
+        <p className="mx-auto mt-4 max-w-xl text-wine/80">{category.blurb}</p>
       </header>
 
-      <nav aria-label="Categories" className="mt-10 flex justify-center gap-8 sm:gap-14">
+      <nav aria-label="Categories" className="mt-10 flex flex-wrap justify-center gap-2 sm:gap-4">
         {categories.map((c) => (
           <Link
             key={c.slug}
@@ -37,7 +37,7 @@ export function CategoryView({ slug }: { slug: CategorySlug }) {
         ))}
       </nav>
 
-      <p className="mt-10 text-sm text-rosewood">
+      <p className="mt-10 text-sm text-rose">
         {products.length} {products.length === 1 ? "piece" : "pieces"}
       </p>
       <div className="mt-5">

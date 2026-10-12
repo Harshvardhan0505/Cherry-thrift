@@ -13,8 +13,8 @@ export function HomeShop() {
   const category = categories.find((c) => c.slug === active)!;
 
   return (
-    <section aria-label="Shop by category" className="px-[6vw] pb-28 pt-12">
-      <div role="tablist" aria-label="Categories" className="flex justify-center gap-8 sm:gap-14">
+    <section aria-label="Shop by category" className="px-[6vw] pb-28 pt-14">
+      <div role="tablist" aria-label="Categories" className="flex flex-wrap justify-center gap-2 sm:gap-4">
         {categories.map((c) => (
           <button
             key={c.slug}
@@ -40,10 +40,10 @@ export function HomeShop() {
         <ProductGrid products={getProducts(active).slice(0, FEATURED)} />
       </div>
 
-      <p className="mt-14 text-center">
+      <p className="mt-24 text-center">
         <Link
           href={`/${category.slug}`}
-          className="border-b border-cherry pb-1 text-cherry transition-colors hover:border-cherry-deep hover:text-cherry-deep"
+          className="border-b border-cherry pb-1 text-cherry transition-colors hover:border-wine hover:text-wine"
         >
           View all {category.label.toLowerCase()} →
         </Link>

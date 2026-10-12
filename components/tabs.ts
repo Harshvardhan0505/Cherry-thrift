@@ -1,9 +1,9 @@
 // Shared look for the category tabs on the home page and the category pages.
 export function tabClass(active: boolean): string {
   return [
-    "cursor-pointer border-b-2 pb-2 text-[1.05rem] transition-colors",
+    "cursor-pointer rounded-full border px-5 py-2 text-[1.02rem] transition-colors",
     active
-      ? "border-cherry-deep text-cherry-deep"
-      : "border-transparent text-rosewood hover:text-cherry",
+      ? "border-cherry bg-cherry text-white"
+      : "border-petal bg-white text-wine hover:border-cherry hover:text-cherry",
   ].join(" ");
 }
