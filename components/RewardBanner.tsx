@@ -12,11 +12,11 @@ export function RewardBanner({
   celebrating: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-petal/60 px-14 py-5 text-center">
-      <HeartIcon className="absolute left-4 top-6 size-6 -rotate-12 text-cherry/60" />
-      <HeartIcon className="absolute left-7 top-14 size-4 rotate-12 text-cherry/50" />
-      <HeartIcon className="absolute right-4 top-5 size-6 rotate-12 text-cherry/60" />
-      <HeartIcon className="absolute right-8 top-12 size-4 -rotate-12 text-cherry/50" />
+    <div className="relative overflow-hidden rounded-2xl bg-petal/60 px-10 py-5 text-center sm:px-14">
+      <HeartIcon className="absolute left-3 top-5 size-5 -rotate-12 text-cherry/60 sm:left-4 sm:top-6 sm:size-6" />
+      <HeartIcon className="absolute left-7 top-14 hidden size-4 rotate-12 text-cherry/50 sm:block" />
+      <HeartIcon className="absolute right-3 top-5 size-5 rotate-12 text-cherry/60 sm:right-4 sm:size-6" />
+      <HeartIcon className="absolute right-8 top-12 hidden size-4 -rotate-12 text-cherry/50 sm:block" />
 
       <p className="flex items-center justify-center gap-1.5 text-xs uppercase tracking-[0.25em] text-cherry/80">
         {unlocked ? "A little treat unlocked" : "A little treat for you"}

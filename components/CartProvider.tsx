@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore } from "react";
 import { cartStore, orderDiscount } from "@/lib/cart";
 import { getProduct, type Product } from "@/lib/products";
 import { CartDrawer } from "./CartDrawer";
@@ -45,6 +45,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
   const [isOpen, setIsOpen] = useState(false);
   const [celebration, setCelebration] = useState<Cart["celebration"]>(null);
+  // Stable, so effects that depend on them don't re-run as the cart changes.
+  const open = useCallback(() => setIsOpen(true), []);
+  const close = useCallback(() => setIsOpen(false), []);
 
   const cart = useMemo<Cart>(() => {
     const lines = items.flatMap((item) => {
@@ -59,8 +62,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       discount,
       total: subtotal - discount,
       isOpen,
-      open: () => setIsOpen(true),
-      close: () => setIsOpen(false),
+      open,
+      close,
       add: (id, size, recommended) => {
         const unlocks =
           recommended &&
@@ -79,7 +82,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       sizeInCart: (id) => items.find((item) => item.id === id)?.size,
       celebration,
     };
-  }, [items, isOpen, celebration]);
+  }, [items, isOpen, celebration, open, close]);
 
   return (
     <CartContext.Provider value={cart}>

@@ -14,7 +14,7 @@ import { RewardBanner } from "./RewardBanner";
 import { SizeButtons } from "./SizeButtons";
 
 export function CartDrawer() {
-  const { lines, subtotal, discount, total, isOpen, close, remove, celebration } = useCart();
+  const { lines, subtotal, discount, total, isOpen, close, remove, clear, celebration } = useCart();
   const closeButton = useRef<HTMLButtonElement>(null);
   const scrollArea = useRef<HTMLDivElement>(null);
 
@@ -57,8 +57,8 @@ export function CartDrawer() {
         aria-label="Shopping cart"
         className={`absolute inset-y-0 right-0 flex w-full max-w-lg flex-col bg-shell text-wine transition-transform duration-300 ${isOpen ? "translate-x-0 shadow-2xl" : "translate-x-full"}`}
       >
-        <header className="flex items-center justify-between px-6 pb-4 pt-6">
-          <h2 className="font-serif text-5xl text-cherry">Your cart</h2>
+        <header className="flex items-center justify-between gap-4 px-6 pb-4 pt-6">
+          <h2 className="font-serif text-4xl text-cherry sm:text-5xl">Your cart</h2>
           <button
             ref={closeButton}
             type="button"
@@ -73,6 +73,18 @@ export function CartDrawer() {
         <div ref={scrollArea} className="flex-1 overflow-y-auto px-6 pb-6">
           {lines.length > 0 && (recommendation || unlocked) && (
             <RewardBanner unlocked={unlocked} celebrating={celebration !== null} />
+          )}
+
+          {lines.length > 0 && (
+            <div className="mt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={clear}
+                className="cursor-pointer text-sm text-rose underline underline-offset-4 hover:text-cherry"
+              >
+                Clear cart
+              </button>
+            </div>
           )}
 
           {lines.length === 0 ? (
