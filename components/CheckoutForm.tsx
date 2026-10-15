@@ -284,7 +284,7 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
                     maxLength={6}
                     pattern="[1-9][0-9]{5}"
                     autoComplete="postal-code"
-                    placeholder="6 digits, fills in your city and state"
+                    placeholder="6 digits"
                     className={inputClass}
                     {...need("Please add your PIN code.", "Please enter a 6-digit PIN code.")}
                   />
