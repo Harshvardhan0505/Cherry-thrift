@@ -19,6 +19,27 @@ export const categories = [
 export type Category = (typeof categories)[number];
 export type CategorySlug = Category["slug"];
 
+// What the cart's recommendation looks at when matching pieces (see
+// lib/recommend.ts). `colour` is the main colour family of the piece.
+export type Colour =
+  | "white"
+  | "cream"
+  | "black"
+  | "beige"
+  | "brown"
+  | "denim"
+  | "burgundy"
+  | "red"
+  | "pink"
+  | "lavender"
+  | "light blue"
+  | "navy"
+  | "sage"
+  | "yellow"
+  | "teal";
+export type Style = "boho" | "romantic" | "going-out" | "casual" | "edgy" | "classic";
+export type Fit = "fitted" | "flowy" | "structured";
+
 export type Product = {
   id: string;
   category: CategorySlug;
@@ -26,6 +47,11 @@ export type Product = {
   price: number;
   // Sizes this piece can be ordered in. Leave out to use the category's list.
   sizes?: string[];
+  colour: Colour;
+  styles: Style[];
+  fit: Fit;
+  // Optional hand-picked matches (product ids), tried before the automatic match.
+  pairsWith?: string[];
   // Path under /public, and a description of the photo for screen readers.
   image: string;
   alt: string;
@@ -39,6 +65,9 @@ export const products: Product[] = [
     category: "tops",
     name: "Cherry Satin Corset Top",
     price: 549,
+    colour: "red",
+    styles: ["going-out", "romantic"],
+    fit: "structured",
     image: "/photos/top-cherry-corset.jpg",
     alt: "Cherry red satin corset top with a lace-up front, worn with white jeans",
   },
@@ -47,6 +76,9 @@ export const products: Product[] = [
     category: "tops",
     name: "Sky Blue Ribbed Cami",
     price: 299,
+    colour: "light blue",
+    styles: ["casual"],
+    fit: "fitted",
     image: "/photos/top-blue-cami.jpg",
     alt: "Light blue ribbed cami crop top worn with white jeans",
   },
@@ -55,6 +87,9 @@ export const products: Product[] = [
     category: "tops",
     name: "Lavender Crochet Halter",
     price: 399,
+    colour: "lavender",
+    styles: ["boho"],
+    fit: "fitted",
     image: "/photos/top-lavender-halter.jpg",
     alt: "Back view of a lavender crochet halter top tied at the neck and back, worn with white shorts",
   },
@@ -63,6 +98,9 @@ export const products: Product[] = [
     category: "tops",
     name: "Caramel V-Neck Crop",
     price: 329,
+    colour: "beige",
+    styles: ["casual", "boho"],
+    fit: "fitted",
     image: "/photos/top-beige-v.jpg",
     alt: "Caramel ribbed V-neck crop top worn with a denim skirt",
   },
@@ -71,6 +109,9 @@ export const products: Product[] = [
     category: "tops",
     name: "Ivory Asymmetric Rib Top",
     price: 449,
+    colour: "white",
+    styles: ["going-out", "edgy"],
+    fit: "fitted",
     image: "/photos/top-white-asymmetric.jpg",
     alt: "Ivory ribbed one-shoulder top with a pointed asymmetric hem, worn with blue jeans",
   },
@@ -79,6 +120,9 @@ export const products: Product[] = [
     category: "tops",
     name: "Pink Ribbed Tank",
     price: 279,
+    colour: "pink",
+    styles: ["casual"],
+    fit: "fitted",
     image: "/photos/top-pink-tank.jpg",
     alt: "Pink ribbed high-neck tank top worn with white jeans",
   },
@@ -87,6 +131,9 @@ export const products: Product[] = [
     category: "tops",
     name: "White Button Cami",
     price: 349,
+    colour: "white",
+    styles: ["romantic", "casual"],
+    fit: "fitted",
     image: "/photos/top-white-button.jpg",
     alt: "White cami crop top with a snap-button front and frilled edge, worn with striped jeans",
   },
@@ -95,6 +142,9 @@ export const products: Product[] = [
     category: "tops",
     name: "Sage Ribbed Tank",
     price: 299,
+    colour: "sage",
+    styles: ["casual", "boho"],
+    fit: "fitted",
     image: "/photos/top-sage-tank.jpg",
     alt: "Sage green ribbed tank top worn with a printed skirt",
   },
@@ -104,6 +154,9 @@ export const products: Product[] = [
     category: "skirts",
     name: "Burgundy Tiered Maxi",
     price: 699,
+    colour: "burgundy",
+    styles: ["boho", "casual"],
+    fit: "flowy",
     image: "/photos/skirt-burgundy-tiered.jpg",
     alt: "Burgundy tiered maxi skirt with a drawstring waist, worn with a white tank top and black boots on a zebra crossing",
   },
@@ -112,6 +165,9 @@ export const products: Product[] = [
     category: "skirts",
     name: "Cream Tiered Maxi",
     price: 649,
+    colour: "cream",
+    styles: ["boho", "romantic"],
+    fit: "flowy",
     image: "/photos/skirt-cream-tiered.jpg",
     alt: "Cream tiered maxi skirt worn with a black crop top and tan sandals on a sunlit cobbled street",
   },
@@ -120,6 +176,9 @@ export const products: Product[] = [
     category: "skirts",
     name: "Black Satin Slip Skirt",
     price: 749,
+    colour: "black",
+    styles: ["going-out", "classic"],
+    fit: "fitted",
     image: "/photos/skirt-black-satin.jpg",
     alt: "Black satin maxi skirt worn with a red halter top, gold chain belt and black heels outside a Paris café",
   },
@@ -128,6 +187,9 @@ export const products: Product[] = [
     category: "skirts",
     name: "Pink Floral Ruffle Maxi",
     price: 599,
+    colour: "pink",
+    styles: ["romantic"],
+    fit: "flowy",
     image: "/photos/skirt-pink-floral.jpg",
     alt: "Pink floral chiffon maxi skirt with a ruffled hem, worn with a white lace-trim cami and white ballet flats beside a flower stall",
   },
@@ -136,6 +198,9 @@ export const products: Product[] = [
     category: "skirts",
     name: "Red Gingham Tiered Maxi",
     price: 579,
+    colour: "red",
+    styles: ["romantic", "casual"],
+    fit: "flowy",
     image: "/photos/skirt-red-gingham.jpg",
     alt: "Red and white gingham tiered maxi skirt worn with a white corset top and red ballet flats against a pink wall",
   },
@@ -144,6 +209,9 @@ export const products: Product[] = [
     category: "skirts",
     name: "Navy Polka Dot Maxi",
     price: 629,
+    colour: "navy",
+    styles: ["romantic", "classic"],
+    fit: "fitted",
     image: "/photos/skirt-navy-polka.jpg",
     alt: "Navy maxi skirt with small white polka dots, worn with a white off-shoulder crop top and black heels on stone steps",
   },
@@ -152,6 +220,9 @@ export const products: Product[] = [
     category: "skirts",
     name: "Denim Slit Maxi",
     price: 699,
+    colour: "denim",
+    styles: ["casual", "edgy"],
+    fit: "fitted",
     image: "/photos/skirt-denim-slit.jpg",
     alt: "Light-wash denim maxi skirt with a front slit, worn with a pink bandeau top and wedge sandals on a seaside promenade",
   },
@@ -160,6 +231,9 @@ export const products: Product[] = [
     category: "skirts",
     name: "Sage Tiered Maxi",
     price: 629,
+    colour: "sage",
+    styles: ["boho", "casual"],
+    fit: "flowy",
     image: "/photos/skirt-sage-tiered.jpg",
     alt: "Sage green tiered maxi skirt worn with a cream crop top and white trainers outside a bookshop",
   },
@@ -169,6 +243,9 @@ export const products: Product[] = [
     category: "purses",
     name: "Yellow Croc Handbag",
     price: 849,
+    colour: "yellow",
+    styles: ["going-out"],
+    fit: "structured",
     image: "/photos/purse-yellow.jpg",
     alt: "Yellow croc-textured handbag with a top handle",
   },
@@ -177,6 +254,9 @@ export const products: Product[] = [
     category: "purses",
     name: "Striped Buckle Handbag",
     price: 799,
+    colour: "brown",
+    styles: ["boho"],
+    fit: "structured",
     image: "/photos/purse-striped.jpg",
     alt: "Hand holding a tan handbag with red, black and brown buckled stripes",
   },
@@ -185,6 +265,9 @@ export const products: Product[] = [
     category: "purses",
     name: "Teal Flap Handbag",
     price: 749,
+    colour: "teal",
+    styles: ["classic", "going-out"],
+    fit: "structured",
     image: "/photos/purse-teal.jpg",
     alt: "Teal leather flap handbag with a gold clasp",
   },
@@ -193,6 +276,9 @@ export const products: Product[] = [
     category: "purses",
     name: "Black Pleated Tote",
     price: 699,
+    colour: "black",
+    styles: ["casual", "classic"],
+    fit: "flowy",
     image: "/photos/purse-black-tote.jpg",
     alt: "Hand holding a black pleated tote bag by its handles",
   },
@@ -201,6 +287,9 @@ export const products: Product[] = [
     category: "purses",
     name: "Navy Top-Handle Bag",
     price: 729,
+    colour: "navy",
+    styles: ["classic"],
+    fit: "structured",
     image: "/photos/purse-navy.jpg",
     alt: "Woman holding a navy blue structured top-handle bag",
   },
@@ -209,6 +298,9 @@ export const products: Product[] = [
     category: "purses",
     name: "Print-Trim Saddle Bag",
     price: 649,
+    colour: "black",
+    styles: ["boho", "going-out"],
+    fit: "structured",
     image: "/photos/purse-print-saddle.jpg",
     alt: "Black saddle bag with blue and orange printed sides and a gold chain",
   },
@@ -217,6 +309,9 @@ export const products: Product[] = [
     category: "purses",
     name: "Brown Leather Satchel",
     price: 899,
+    colour: "brown",
+    styles: ["classic", "boho"],
+    fit: "structured",
     image: "/photos/purse-brown-satchel.jpg",
     alt: "Brown leather satchel with a top handle and twist lock",
   },
@@ -225,6 +320,9 @@ export const products: Product[] = [
     category: "purses",
     name: "Tan Suede Tote",
     price: 599,
+    colour: "beige",
+    styles: ["casual", "boho"],
+    fit: "flowy",
     image: "/photos/purse-tan-tote.jpg",
     alt: "Woman reaching into a tan suede tote with black handles",
   },

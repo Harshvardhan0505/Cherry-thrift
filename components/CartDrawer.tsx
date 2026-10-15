@@ -4,26 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { RECOMMENDATION_DISCOUNT } from "@/lib/cart";
-import { categories, formatPrice, getProducts, type Product } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
+import { recommendFor } from "@/lib/recommend";
 import { useCart } from "./CartProvider";
 import { HeartBurst } from "./HeartBurst";
 import { HeartIcon } from "./HeartIcon";
 import { OrderTotal } from "./OrderTotal";
 import { RewardBanner } from "./RewardBanner";
 import { SizeButtons } from "./SizeButtons";
-
-// The piece to recommend: the first from a category the shopper hasn't picked
-// from yet, otherwise anything that isn't already in the cart.
-function recommend(inCart: Product[]): Product | undefined {
-  const taken = new Set(inCart.map((product) => product.id));
-  const pickedCategories = new Set(inCart.map((product) => product.category));
-  const fresh = categories
-    .filter((category) => !pickedCategories.has(category.slug))
-    .flatMap((category) => getProducts(category.slug).slice(0, 1));
-  const rest = categories.flatMap((category) => getProducts(category.slug));
-  const unique = [...new Map([...fresh, ...rest].map((product) => [product.id, product])).values()];
-  return unique.find((product) => !taken.has(product.id));
-}
 
 export function CartDrawer() {
   const { lines, subtotal, discount, total, isOpen, close, remove, celebration } = useCart();
@@ -46,8 +34,8 @@ export function CartDrawer() {
 
   // One recommendation per order: once it is in the cart, stop offering.
   const unlocked = lines.some((line) => line.recommended);
-  const recommendation =
-    lines.length > 0 && !unlocked ? recommend(lines.map((line) => line.product)) : undefined;
+  const suggestion = unlocked ? undefined : recommendFor(lines.map((line) => line.product));
+  const recommendation = suggestion?.product;
 
   return (
     <div
@@ -141,6 +129,9 @@ export function CartDrawer() {
                         {formatPrice(recommendation.price)}
                       </p>
                     </div>
+                    <p className="mt-0.5 text-sm text-sage-deep">
+                      Goes with your {suggestion?.goesWith.name}
+                    </p>
                     <p className="mt-1.5 flex items-center gap-1.5 text-sm text-rose">
                       Choose your size to unlock your {RECOMMENDATION_DISCOUNT}% off
                       <HeartIcon className="size-4 shrink-0" />
