@@ -92,7 +92,8 @@ function orderMessage(
   ].join("\n");
 }
 
-export function CheckoutForm() {
+// `heading` is the page's title block.
+export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
   const { lines, subtotal, discount, total, clear } = useCart();
   // Set once the order has been handed to WhatsApp.
   const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
@@ -147,208 +148,230 @@ export function CheckoutForm() {
     setWhatsappUrl(url);
   }
 
-  if (whatsappUrl) {
-    return (
-      <div className="mx-auto max-w-xl rounded-xl bg-white px-6 py-12 text-center">
-        <h2 className="font-serif text-4xl text-cherry">One last step</h2>
-        <p className="mt-4 text-lg">
-          WhatsApp has opened with your order typed out. Press send there to place it, and
-          we&apos;ll reply to confirm payment and delivery.
-        </p>
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 inline-block rounded-md bg-cherry px-7 py-3.5 font-medium text-white transition-colors hover:bg-wine"
-        >
-          WhatsApp didn&apos;t open? Tap here
-        </a>
-        <p className="mt-6">
-          <Link
-            href="/"
-            onClick={clear}
-            className="text-cherry underline underline-offset-4 hover:text-wine"
-          >
-            I&apos;ve sent it. Empty my cart and keep browsing
-          </Link>
-        </p>
-      </div>
-    );
-  }
-
   if (lines.length === 0) {
     return (
-      <div className="mx-auto max-w-xl rounded-xl bg-white px-6 py-12 text-center">
-        <p className="text-lg text-rose">Your cart is empty.</p>
-        <Link
-          href="/"
-          className="mt-6 inline-block rounded-md bg-cherry px-7 py-3.5 font-medium text-white transition-colors hover:bg-wine"
-        >
-          Back to the shop
-        </Link>
-      </div>
+      <>
+        {heading}
+        <div className="mx-auto mt-10 max-w-5xl sm:mt-12">
+          <div className="mx-auto max-w-xl rounded-xl bg-white px-6 py-12 text-center">
+            <p className="text-lg text-rose">Your cart is empty.</p>
+            <Link
+              href="/"
+              className="mt-6 inline-block rounded-md bg-cherry px-7 py-3.5 font-medium text-white transition-colors hover:bg-wine"
+            >
+              Back to the shop
+            </Link>
+          </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8">
-      <form onSubmit={handleSubmit} className="order-2 rounded-2xl bg-white p-6 shadow-sm sm:p-10 lg:order-1">
-        <p className="text-sm text-rose">
-          Fields marked <span className="text-cherry">*</span> are needed to place your order.
-        </p>
-
-        <fieldset className="mt-6">
-          <legend className="font-serif text-3xl text-cherry">Contact</legend>
-          <div className="mt-6 grid gap-x-5 gap-y-6 sm:grid-cols-2">
-            <label className={labelClass}>
-              <Label text="Phone" />
-              <input
-                name="phone"
-                type="tel"
-                inputMode="numeric"
-                maxLength={10}
-                pattern="[6-9][0-9]{9}"
-                autoComplete="tel-national"
-                placeholder="10-digit mobile number"
-                className={inputClass}
-                {...need("Please add your phone number.", "Please enter a 10-digit mobile number.")}
-              />
-            </label>
-            <label className={labelClass}>
-              <Label text="Email" optional />
-              <input name="email" type="email" autoComplete="email" className={inputClass} />
-            </label>
+    <>
+      {heading}
+      <div className="mx-auto mt-10 max-w-5xl sm:mt-12">
+        {whatsappUrl && (
+          <div className="mx-auto max-w-xl rounded-2xl bg-white px-6 py-12 text-center shadow-sm">
+            <h2 className="font-serif text-4xl text-cherry">One last step</h2>
+            <p className="mt-4 text-lg">
+              WhatsApp has opened with your order typed out. Press send there to place it, and
+              we&apos;ll reply to confirm payment and delivery.
+            </p>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 inline-block rounded-md bg-cherry px-7 py-3.5 font-medium text-white transition-colors hover:bg-wine"
+            >
+              WhatsApp didn&apos;t open? Tap here
+            </a>
+            <p className="mt-6">
+              <Link
+                href="/"
+                onClick={clear}
+                className="text-cherry underline underline-offset-4 hover:text-wine"
+              >
+                I&apos;ve sent it. Empty my cart and keep browsing
+              </Link>
+            </p>
+            <p className="mt-4">
+              <button
+                type="button"
+                onClick={() => setWhatsappUrl(null)}
+                className="cursor-pointer text-rose underline underline-offset-4 hover:text-cherry"
+              >
+                ← Oops, let me edit my details
+              </button>
+            </p>
           </div>
-        </fieldset>
+        )}
 
-        <hr aria-hidden="true" className="my-8 border-petal" />
-        <fieldset>
-          <legend className="font-serif text-3xl text-cherry">Delivery</legend>
-          <p className="mt-1 text-sm text-rose">We deliver within India.</p>
-          <div className="mt-6 grid gap-x-5 gap-y-6 sm:grid-cols-2">
-            <label className={labelClass}>
-              <Label text="First name" />
-              <input
-                name="firstName"
-                autoComplete="given-name"
-                className={inputClass}
-                {...need("Please add your first name.")}
-              />
-            </label>
-            <label className={labelClass}>
-              <Label text="Last name" optional />
-              <input name="lastName" autoComplete="family-name" className={inputClass} />
-            </label>
-            <label className={`sm:col-span-2 ${labelClass}`}>
-              <Label text="Address" />
-              <input
-                name="address"
-                autoComplete="address-line1"
-                placeholder="House number, street, area"
-                className={inputClass}
-                {...need("Please add your address.")}
-              />
-            </label>
-            <label className={`sm:col-span-2 ${labelClass}`}>
-              <Label text="Apartment, landmark" optional />
-              <input name="apartment" autoComplete="address-line2" className={inputClass} />
-            </label>
-            <label className={`sm:col-span-2 ${labelClass}`}>
-              <Label text="PIN code" />
-              <input
-                name="pin"
-                value={pin}
-                onChange={(event) => handlePin(event.target.value)}
-                inputMode="numeric"
-                maxLength={6}
-                pattern="[1-9][0-9]{5}"
-                autoComplete="postal-code"
-                placeholder="6 digits, fills in your city and state"
-                className={inputClass}
-                {...need("Please add your PIN code.", "Please enter a 6-digit PIN code.")}
-              />
-              {pinNote && (
-                <span
-                  aria-live="polite"
-                  className={`mt-1.5 block text-sm font-normal ${
-                    pinNote.tone === "ok" ? "text-sage-deep" : pinNote.tone === "warn" ? "text-cherry" : "text-rose"
-                  }`}
-                >
-                  {pinNote.tone === "ok" ? `✓ ${pinNote.text}` : pinNote.text}
-                </span>
-              )}
-            </label>
-            <label className={labelClass}>
-              <Label text="City" />
-              <Autocomplete
-                name="city"
-                value={city}
-                onChange={(value) => {
-                  setCity(value);
-                  // Picking a listed city fills in its state if it's empty.
-                  const itsState = STATE_OF_CITY.get(value);
-                  if (itsState && !state) setState(itsState);
-                }}
-                options={cityOptions}
-                hint={(option) => (matchState(state) ? undefined : STATE_OF_CITY.get(option))}
-                autoComplete="address-level2"
-                required
-                invalidMessage="Please add your city."
-                inputClass={inputClass}
-              />
-            </label>
-            <label className={labelClass}>
-              <Label text="State" />
-              <Autocomplete
-                name="state"
-                value={state}
-                onChange={setState}
-                options={stateOptions}
-                autoComplete="address-level1"
-                required
-                invalidMessage="Please add your state."
-                validate={validateState}
-                inputClass={inputClass}
-              />
-            </label>
-          </div>
-        </fieldset>
-
-        <button
-          type="submit"
-          className="mt-10 w-full cursor-pointer rounded-md bg-cherry px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-wine"
+        {/* Kept on the page while the step above shows, so going back finds
+            everything just as it was typed. */}
+        <div
+          hidden={whatsappUrl !== null}
+          className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8"
         >
-          Place order on WhatsApp
-        </button>
-        <p className="mt-3 text-center text-sm text-rose">
-          No payment is taken on this site. Your order opens as a WhatsApp message to us, and we
-          confirm payment and delivery there.
-        </p>
-      </form>
+          <form onSubmit={handleSubmit} className="order-2 rounded-2xl bg-white p-6 shadow-sm sm:p-10 lg:order-1">
+            <p className="text-sm text-rose">
+              Fields marked <span className="text-cherry">*</span> are needed to place your order.
+            </p>
 
-      <aside aria-label="Order summary" className="order-1 lg:sticky lg:top-8 lg:order-2">
-        <div className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
-          <h2 className="font-serif text-3xl text-cherry">Your order</h2>
-          <ul className="mt-4 divide-y divide-petal">
-            {lines.map(({ product, size }) => (
-              <li key={product.id} className="flex items-center gap-4 py-4">
-                <div className="relative aspect-[4/5] w-16 shrink-0 overflow-hidden rounded-md bg-petal">
-                  <Image src={product.image} alt="" fill sizes="64px" className="object-cover" />
-                </div>
-                <div className="flex-1">
-                  <p>{product.name}</p>
-                  <p className="text-sm uppercase tracking-wide text-rose">Size: {size}</p>
-                </div>
-                <p className="font-medium text-cherry">{formatPrice(product.price)}</p>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 border-t border-petal pt-4">
-            <OrderTotal lines={lines} subtotal={subtotal} discount={discount} total={total} />
-            <p className="mt-2 text-sm text-rose">Delivery is agreed with you on WhatsApp.</p>
-          </div>
+            <fieldset className="mt-6">
+              <legend className="font-serif text-3xl text-cherry">Contact</legend>
+              <div className="mt-6 grid gap-x-5 gap-y-6 sm:grid-cols-2">
+                <label className={labelClass}>
+                  <Label text="Phone" />
+                  <input
+                    name="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    pattern="[6-9][0-9]{9}"
+                    autoComplete="tel-national"
+                    placeholder="10-digit mobile number"
+                    className={inputClass}
+                    {...need("Please add your phone number.", "Please enter a 10-digit mobile number.")}
+                  />
+                </label>
+                <label className={labelClass}>
+                  <Label text="Email" optional />
+                  <input name="email" type="email" autoComplete="email" className={inputClass} />
+                </label>
+              </div>
+            </fieldset>
+
+            <hr aria-hidden="true" className="my-8 border-petal" />
+            <fieldset>
+              <legend className="font-serif text-3xl text-cherry">Delivery</legend>
+              <p className="mt-1 text-sm text-rose">We deliver within India.</p>
+              <div className="mt-6 grid gap-x-5 gap-y-6 sm:grid-cols-2">
+                <label className={labelClass}>
+                  <Label text="First name" />
+                  <input
+                    name="firstName"
+                    autoComplete="given-name"
+                    className={inputClass}
+                    {...need("Please add your first name.")}
+                  />
+                </label>
+                <label className={labelClass}>
+                  <Label text="Last name" optional />
+                  <input name="lastName" autoComplete="family-name" className={inputClass} />
+                </label>
+                <label className={`sm:col-span-2 ${labelClass}`}>
+                  <Label text="Address" />
+                  <input
+                    name="address"
+                    autoComplete="address-line1"
+                    placeholder="House number, street, area"
+                    className={inputClass}
+                    {...need("Please add your address.")}
+                  />
+                </label>
+                <label className={`sm:col-span-2 ${labelClass}`}>
+                  <Label text="Apartment, landmark" optional />
+                  <input name="apartment" autoComplete="address-line2" className={inputClass} />
+                </label>
+                <label className={`sm:col-span-2 ${labelClass}`}>
+                  <Label text="PIN code" />
+                  <input
+                    name="pin"
+                    value={pin}
+                    onChange={(event) => handlePin(event.target.value)}
+                    inputMode="numeric"
+                    maxLength={6}
+                    pattern="[1-9][0-9]{5}"
+                    autoComplete="postal-code"
+                    placeholder="6 digits, fills in your city and state"
+                    className={inputClass}
+                    {...need("Please add your PIN code.", "Please enter a 6-digit PIN code.")}
+                  />
+                  {pinNote && (
+                    <span
+                      aria-live="polite"
+                      className={`mt-1.5 block text-sm font-normal ${
+                        pinNote.tone === "ok" ? "text-sage-deep" : pinNote.tone === "warn" ? "text-cherry" : "text-rose"
+                      }`}
+                    >
+                      {pinNote.tone === "ok" ? `✓ ${pinNote.text}` : pinNote.text}
+                    </span>
+                  )}
+                </label>
+                <label className={labelClass}>
+                  <Label text="City" />
+                  <Autocomplete
+                    name="city"
+                    value={city}
+                    onChange={(value) => {
+                      setCity(value);
+                      // Picking a listed city fills in its state if it's empty.
+                      const itsState = STATE_OF_CITY.get(value);
+                      if (itsState && !state) setState(itsState);
+                    }}
+                    options={cityOptions}
+                    hint={(option) => (matchState(state) ? undefined : STATE_OF_CITY.get(option))}
+                    autoComplete="address-level2"
+                    required
+                    invalidMessage="Please add your city."
+                    inputClass={inputClass}
+                  />
+                </label>
+                <label className={labelClass}>
+                  <Label text="State" />
+                  <Autocomplete
+                    name="state"
+                    value={state}
+                    onChange={setState}
+                    options={stateOptions}
+                    autoComplete="address-level1"
+                    required
+                    invalidMessage="Please add your state."
+                    validate={validateState}
+                    inputClass={inputClass}
+                  />
+                </label>
+              </div>
+            </fieldset>
+
+            <button
+              type="submit"
+              className="mt-10 w-full cursor-pointer rounded-md bg-cherry px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-wine"
+            >
+              Place order on WhatsApp
+            </button>
+            <p className="mt-3 text-center text-sm text-rose">
+              No payment is taken on this site. Your order opens as a WhatsApp message to us, and we
+              confirm payment and delivery there.
+            </p>
+          </form>
+
+          <aside aria-label="Order summary" className="order-1 lg:sticky lg:top-8 lg:order-2">
+            <div className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+              <h2 className="font-serif text-3xl text-cherry">Your order</h2>
+              <ul className="mt-4 divide-y divide-petal">
+                {lines.map(({ product, size }) => (
+                  <li key={product.id} className="flex items-center gap-4 py-4">
+                    <div className="relative aspect-[4/5] w-16 shrink-0 overflow-hidden rounded-md bg-petal">
+                      <Image src={product.image} alt="" fill sizes="64px" className="object-cover" />
+                    </div>
+                    <div className="flex-1">
+                      <p>{product.name}</p>
+                      <p className="text-sm uppercase tracking-wide text-rose">Size: {size}</p>
+                    </div>
+                    <p className="font-medium text-cherry">{formatPrice(product.price)}</p>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 border-t border-petal pt-4">
+                <OrderTotal lines={lines} subtotal={subtotal} discount={discount} total={total} />
+                <p className="mt-2 text-sm text-rose">Delivery is agreed with you on WhatsApp.</p>
+              </div>
+            </div>
+          </aside>
         </div>
-      </aside>
-    </div>
+      </div>
+    </>
   );
 }
