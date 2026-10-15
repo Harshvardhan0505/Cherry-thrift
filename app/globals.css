@@ -32,21 +32,6 @@ body {
   outline-offset: 3px;
 }
 
-/* On a page that opens with a full-width hero photo, the header sits on top
-   of the photo instead of above it. */
-.site-header:has(+ main > .hero) {
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
-  border-color: transparent;
-  background: transparent;
-}
-
-.site-header:has(+ main > .hero) a,
-.site-header:has(+ main > .hero) button {
-  color: #fff;
-}
-
 /* Product card: on hover or keyboard focus the lower half of the photo
    frosts over and offers the sizes. */
 .product-card {

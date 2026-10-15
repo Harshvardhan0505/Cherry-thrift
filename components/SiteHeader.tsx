@@ -4,16 +4,25 @@ import { site } from "@/lib/site";
 import { CartButton } from "./CartButton";
 import { InstagramIcon } from "./InstagramIcon";
 
-const linkClass =
-  "underline-offset-8 decoration-1 transition-colors hover:text-cherry hover:underline";
+// `overlay` is for the home page, where the header sits on top of the hero
+// photo in white.
+export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
+  const linkClass = `underline-offset-8 decoration-1 transition-colors hover:underline ${
+    overlay ? "hover:text-white/80" : "hover:text-cherry"
+  }`;
 
-export function SiteHeader() {
   return (
-    <header className="site-header relative z-30 border-b border-petal bg-white text-wine">
+    <header
+      className={
+        overlay
+          ? "absolute inset-x-0 top-0 z-30 text-white"
+          : "relative z-30 border-b border-petal bg-white text-wine"
+      }
+    >
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-[6vw] py-5 md:gap-x-12 md:py-6">
         <Link
           href="/"
-          className="text-xl font-medium uppercase tracking-[0.22em] text-cherry sm:text-2xl md:text-[1.75rem]"
+          className={`text-xl font-medium uppercase tracking-[0.22em] sm:text-2xl md:text-[1.75rem] ${overlay ? "" : "text-cherry"}`}
         >
           {site.name}
         </Link>
@@ -39,17 +48,17 @@ export function SiteHeader() {
           <Link href="/#contact" className={`hidden sm:inline ${linkClass}`}>
             Contact
           </Link>
-          <span aria-hidden="true" className="hidden h-4 w-px bg-petal sm:block" />
+          <span aria-hidden="true" className={`hidden h-4 w-px sm:block ${overlay ? "bg-white/50" : "bg-petal"}`} />
           <a
             href={site.instagram.url}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Cherry Thrifts on Instagram (${site.instagram.handle})`}
-            className="text-cherry transition-colors hover:text-wine"
+            className={`transition-colors ${overlay ? "hover:text-white/80" : "text-cherry hover:text-wine"}`}
           >
             <InstagramIcon className="size-5" />
           </a>
-          <CartButton />
+          <CartButton className={overlay ? "hover:text-white/80" : undefined} />
         </div>
       </div>
     </header>

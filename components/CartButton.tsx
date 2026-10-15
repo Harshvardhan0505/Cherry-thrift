@@ -2,7 +2,8 @@
 
 import { useCart } from "./CartProvider";
 
-export function CartButton() {
+// `className` sets the icon colour for the header it sits in.
+export function CartButton({ className = "text-cherry hover:text-wine" }: { className?: string }) {
   const { lines, open } = useCart();
   const count = lines.length;
 
@@ -11,7 +12,7 @@ export function CartButton() {
       type="button"
       onClick={open}
       aria-label={count === 0 ? "Open cart, empty" : `Open cart, ${count} ${count === 1 ? "item" : "items"}`}
-      className="relative cursor-pointer text-cherry transition-colors hover:text-wine"
+      className={`relative cursor-pointer transition-colors ${className}`}
     >
       <svg
         viewBox="0 0 24 24"

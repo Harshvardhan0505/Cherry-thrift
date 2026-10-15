@@ -107,20 +107,21 @@ export function CheckoutForm() {
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
-      <form onSubmit={handleSubmit} className="order-2 rounded-xl bg-white p-6 sm:p-8 lg:order-1">
+    <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8">
+      <form onSubmit={handleSubmit} className="order-2 rounded-2xl bg-white p-6 shadow-sm sm:p-10 lg:order-1">
         <fieldset>
           <legend className="font-serif text-3xl text-cherry">Contact</legend>
-          <label className={`mt-5 ${labelClass}`}>
+          <label className={`mt-6 ${labelClass}`}>
             Email
             <input name="email" type="email" required autoComplete="email" className={inputClass} />
           </label>
         </fieldset>
 
-        <fieldset className="mt-10">
+        <hr aria-hidden="true" className="my-8 border-petal" />
+        <fieldset>
           <legend className="font-serif text-3xl text-cherry">Delivery</legend>
-          <p className="mt-2 text-sm text-rose">We deliver within India.</p>
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <p className="mt-1 text-sm text-rose">We deliver within India.</p>
+          <div className="mt-6 grid gap-x-5 gap-y-6 sm:grid-cols-2">
             <label className={labelClass}>
               First name
               <input name="firstName" required autoComplete="given-name" className={inputClass} />
@@ -184,8 +185,8 @@ export function CheckoutForm() {
         </p>
       </form>
 
-      <aside aria-label="Order summary" className="order-1 lg:order-2">
-        <div className="rounded-xl bg-white p-6 sm:p-8">
+      <aside aria-label="Order summary" className="order-1 lg:sticky lg:top-8 lg:order-2">
+        <div className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
           <h2 className="font-serif text-3xl text-cherry">Your order</h2>
           <ul className="mt-4 divide-y divide-petal">
             {lines.map(({ product, size }) => (
