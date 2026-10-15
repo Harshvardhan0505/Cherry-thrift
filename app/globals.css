@@ -10,6 +10,7 @@
   --color-rose: #86535f;
   --color-sage: #c6d2bd;
   --color-sage-deep: #4f6648;
+  --color-shell: #fdf5f7;
 }
 
 @theme inline {
@@ -41,30 +42,23 @@ body {
   background: transparent;
 }
 
-.site-header:has(+ main > .hero) a {
+.site-header:has(+ main > .hero) a,
+.site-header:has(+ main > .hero) button {
   color: #fff;
 }
 
-/* Product card: lifts on hover or keyboard focus and opens a details panel
-   underneath, without moving the cards around it. */
+/* Product card: on hover or keyboard focus the lower half of the photo
+   frosts over and offers the sizes. */
 .product-card {
-  position: relative;
-}
-
-.product-card__inner {
-  position: relative;
+  overflow: hidden;
   border-radius: 10px;
   background: #fff;
-  transition:
-    transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
-    filter 0.3s;
 }
 
 .product-card__photo {
   position: relative;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  border-radius: 10px 10px 0 0;
   /* Shown while the photo loads. */
   background: var(--color-petal);
 }
@@ -73,42 +67,99 @@ body {
   transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-.product-card__details {
+.product-card__sizes {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% - 1px);
-  padding: 0 16px 16px;
-  border-radius: 0 0 10px 10px;
-  background: #fff;
+  inset: auto 0 0;
+  display: flex;
+  height: 56%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(10px);
+  color: var(--color-wine);
   opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.2s,
-    visibility 0.2s;
+  pointer-events: none;
+  transition: opacity 0.25s;
 }
 
-.product-card:hover .product-card__inner,
-.product-card:focus-visible .product-card__inner {
-  z-index: 20;
-  transform: scale(1.05);
-  border-radius: 10px 10px 0 0;
-  filter: drop-shadow(0 16px 24px rgb(74 20 32 / 0.2));
-}
-
-.product-card:hover .product-card__details,
-.product-card:focus-visible .product-card__details {
+.product-card:hover .product-card__sizes,
+.product-card:focus-within .product-card__sizes {
   opacity: 1;
-  visibility: visible;
+  pointer-events: auto;
 }
 
-.product-card:hover .product-card__photo img,
-.product-card:focus-visible .product-card__photo img {
-  transform: scale(1.06);
+.product-card:hover .product-card__photo img {
+  transform: scale(1.04);
 }
 
-.product-card:focus-visible {
-  outline: none;
+.product-card__sizes-inline {
+  display: none;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0 1rem 1rem;
+}
+
+@media (hover: none) {
+  .product-card__sizes {
+    display: none;
+  }
+
+  .product-card__sizes-inline {
+    display: flex;
+  }
+}
+
+/* Cart celebrations when the recommended piece unlocks the discount. */
+.heart-float {
+  opacity: 0;
+  animation: heart-float 0.9s ease-out forwards;
+}
+
+@keyframes heart-float {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 0), -150px) scale(1.2) rotate(var(--rot, 0));
+  }
+}
+
+.sparkle {
+  opacity: 0;
+  animation: sparkle 0.45s ease-out 0.5s both;
+}
+
+@keyframes sparkle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.6) rotate(40deg);
+  }
+}
+
+.offer-appear > p {
+  animation: offer-appear 0.7s ease-out 0.3s both;
+}
+
+@keyframes offer-appear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -116,15 +167,18 @@ body {
     scroll-behavior: auto;
   }
 
-  .product-card__inner,
-  .product-card__photo img {
+  .product-card__photo img,
+  .product-card__sizes {
     transition: none;
   }
 
-  .product-card:hover .product-card__inner,
-  .product-card:focus-visible .product-card__inner,
-  .product-card:hover .product-card__photo img,
-  .product-card:focus-visible .product-card__photo img {
+  .heart-float,
+  .sparkle,
+  .offer-appear > p {
+    animation: none;
+  }
+
+  .product-card:hover .product-card__photo img {
     transform: none;
   }
 }

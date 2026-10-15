@@ -11,6 +11,8 @@ export const site = {
     handle: "@_cherry.thrifts_",
     url: "https://www.instagram.com/_cherry.thrifts_?utm_source=ig_web_button_share_sheet&cplk=ZDNlZDc0MzIxNw==",
   },
+  // Orders are sent here as a WhatsApp message. Country code first, no "+".
+  whatsapp: "919599642567",
   // Where the "Blog" links point. Swap for an external URL to send visitors
   // straight to a blog hosted elsewhere.
   blogUrl: "/blog",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { categories } from "@/lib/products";
 import { site } from "@/lib/site";
+import { CartButton } from "./CartButton";
 import { InstagramIcon } from "./InstagramIcon";
 
 const linkClass =
@@ -48,6 +49,7 @@ export function SiteHeader() {
           >
             <InstagramIcon className="size-5" />
           </a>
+          <CartButton />
         </div>
       </div>
     </header>

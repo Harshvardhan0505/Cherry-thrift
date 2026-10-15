@@ -1,0 +1,93 @@
+import { getProduct, getSizes } from "./products";
+
+// One line per product: every piece is a one-off, so a product is either in
+// the cart in a single size or not in it at all. `recommended` marks the piece
+// that was added from the cart's recommendation.
+export type CartItem = { id: string; size: string; recommended: boolean };
+
+// Percent off the whole order once the recommended piece is in the cart.
+export const RECOMMENDATION_DISCOUNT = 15;
+
+export function orderDiscount(subtotal: number): number {
+  return Math.round((subtotal * RECOMMENDATION_DISCOUNT) / 100);
+}
+
+const KEY = "cherry-thrifts-cart";
+const EMPTY: CartItem[] = [];
+
+let cache: CartItem[] | null = null;
+const listeners = new Set<() => void>();
+
+// Drops anything that no longer matches the catalogue.
+function sanitize(value: unknown): CartItem[] {
+  if (!Array.isArray(value)) return EMPTY;
+  const seen = new Set<string>();
+  const items: CartItem[] = [];
+  for (const entry of value) {
+    const product = typeof entry?.id === "string" ? getProduct(entry.id) : undefined;
+    if (!product || seen.has(product.id) || !getSizes(product).includes(entry.size)) continue;
+    seen.add(product.id);
+    // Only one piece per order counts as the recommendation.
+    const recommended = entry.recommended === true && !items.some((item) => item.recommended);
+    items.push({ id: product.id, size: entry.size, recommended });
+  }
+  return items;
+}
+
+function read(): CartItem[] {
+  if (cache) return cache;
+  try {
+    const raw = window.localStorage.getItem(KEY);
+    cache = raw ? sanitize(JSON.parse(raw)) : EMPTY;
+  } catch {
+    cache = EMPTY;
+  }
+  return cache;
+}
+
+function write(next: CartItem[]) {
+  cache = next;
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(next));
+  } catch {
+    // Storage can be unavailable (private windows); the cart then lasts for the visit.
+  }
+  listeners.forEach((listener) => listener());
+}
+
+function onStorage(event: StorageEvent) {
+  if (event.key !== KEY) return;
+  cache = null;
+  listeners.forEach((listener) => listener());
+}
+
+export const cartStore = {
+  subscribe(listener: () => void) {
+    listeners.add(listener);
+    if (listeners.size === 1) window.addEventListener("storage", onStorage);
+    return () => {
+      listeners.delete(listener);
+      if (listeners.size === 0) window.removeEventListener("storage", onStorage);
+    };
+  },
+  getSnapshot: read,
+  getServerSnapshot: () => EMPTY,
+  // Adds the product, or switches its size if it is already in the cart (it
+  // stays the recommendation if it was one). `recommended` applies only to a
+  // newly added piece.
+  set(id: string, size: string, recommended = false) {
+    const items = read();
+    if (items.some((item) => item.id === id)) {
+      write(items.map((item) => (item.id === id ? { ...item, size } : item)));
+    } else {
+      const allowed = recommended && !items.some((item) => item.recommended);
+      write([...items, { id, size, recommended: allowed }]);
+    }
+  },
+  remove(id: string) {
+    write(read().filter((item) => item.id !== id));
+  },
+  clear() {
+    write(EMPTY);
+  },
+};
