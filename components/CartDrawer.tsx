@@ -7,6 +7,7 @@ import { RECOMMENDATION_DISCOUNT } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { recommendFor } from "@/lib/recommend";
 import { useCart } from "./CartProvider";
+import { CherryIcon } from "./CherryIcon";
 import { HeartBurst } from "./HeartBurst";
 import { HeartIcon } from "./HeartIcon";
 import { OrderTotal } from "./OrderTotal";
@@ -88,8 +89,10 @@ export function CartDrawer() {
           )}
 
           {lines.length === 0 ? (
-            <p className="mt-6 rounded-lg bg-blush px-5 py-8 text-center text-rose">
-              Your cart is empty. Pick a size on any piece to add it.
+            <p className="mt-6 flex items-center justify-center gap-3 rounded-lg bg-blush px-5 py-8 text-center text-lg text-rose">
+              <CherryIcon className="size-8 shrink-0" />
+              Oops, it&apos;s a little empty in here
+              <CherryIcon className="size-8 shrink-0 -scale-x-100" />
             </p>
           ) : (
             <ul className="mt-2 divide-y divide-petal">
