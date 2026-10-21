@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { categories } from "@/lib/products";
 import { site } from "@/lib/site";
+import { AccountLink } from "./AccountLink";
 import { CartButton } from "./CartButton";
 import { InstagramIcon } from "./InstagramIcon";
-import { OrdersLink } from "./OrdersLink";
+
 
 // `overlay` is for the home page, where the header sits on top of the hero
 // photo in white.
@@ -46,7 +48,9 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
         </nav>
 
         <div className="ml-auto flex items-center gap-3 text-[0.95rem] sm:gap-4">
-          <OrdersLink className={linkClass} iconClass={overlay ? "" : "text-cherry"} />
+          <Suspense>
+            <AccountLink className={linkClass} iconClass={overlay ? "" : "text-cherry"} />
+          </Suspense>
           <Link href="/#contact" className={`hidden sm:inline ${linkClass}`}>
             Contact
           </Link>

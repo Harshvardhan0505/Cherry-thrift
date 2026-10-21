@@ -11,11 +11,15 @@
   --color-sage: #c6d2bd;
   --color-sage-deep: #4f6648;
   --color-shell: #fdf5f7;
+  /* Warm paper and its hairlines, for the scrapbook log in pages. */
+  --color-cream: #fbf3ef;
+  --color-seam: #efd9dd;
 }
 
 @theme inline {
   --font-sans: var(--font-jost);
   --font-serif: var(--font-instrument-serif);
+  --font-hand: var(--font-caveat);
 }
 
 html {
@@ -147,6 +151,41 @@ body {
   }
 }
 
+/* Warm cream paper with a faint grain, behind the log in scrapbook. */
+.paper {
+  position: relative;
+  isolation: isolate;
+  background: var(--color-cream);
+}
+
+.paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .35  0 0 0 0 .38  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+}
+
+/* Striped washi tape holding the polaroids down. */
+.washi {
+  background: repeating-linear-gradient(135deg, rgb(243 201 210 / 0.95) 0 7px, rgb(252 232 236 / 0.95) 7px 14px);
+  box-shadow: 0 1px 2px rgb(74 20 32 / 0.08);
+}
+
+@keyframes board-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.board-in {
+  animation: board-in 0.7s ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -159,6 +198,7 @@ body {
 
   .heart-float,
   .sparkle,
+  .board-in,
   .offer-appear > p {
     animation: none;
   }

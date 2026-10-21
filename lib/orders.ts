@@ -1,7 +1,7 @@
 import "server-only";
+import type { SavedAddress } from "./auth";
 import { orderPrices, sanitize } from "./cart";
 import { matchState } from "./india";
-import { isOrderId } from "./order-history";
 import { getProduct } from "./products";
 import { supabase } from "./supabase";
 
@@ -24,12 +24,16 @@ export type Order = {
   total: number;
 };
 
-export async function getOrder(id: string): Promise<Order | null> {
-  if (!isOrderId(id)) return null;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// One of the customer's orders; null if it isn't theirs.
+export async function getOrder(id: string, customerId: string): Promise<Order | null> {
+  if (!UUID.test(id)) return null;
   const { data, error } = await supabase()
     .from("orders")
     .select("id, number, created_at, status, items, subtotal, discount, total")
     .eq("id", id)
+    .eq("customer_id", customerId)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
@@ -48,13 +52,11 @@ export async function getOrder(id: string): Promise<Order | null> {
 // The short version for the "Your orders" list, newest first.
 export type OrderSummary = Pick<Order, "id" | "number" | "createdAt" | "status" | "items" | "total">;
 
-export async function getOrderSummaries(ids: string[]): Promise<OrderSummary[]> {
-  const valid = ids.filter(isOrderId);
-  if (valid.length === 0) return [];
+export async function getOrderSummaries(customerId: string): Promise<OrderSummary[]> {
   const { data, error } = await supabase()
     .from("orders")
     .select("id, number, created_at, status, items, total")
-    .in("id", valid)
+    .eq("customer_id", customerId)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data.map((row) => ({
@@ -67,12 +69,13 @@ export async function getOrderSummaries(ids: string[]): Promise<OrderSummary[]> 
   }));
 }
 
-export type NewOrder = { cart: unknown; details: Record<string, string> };
+export type NewOrder = { customerId: string; cart: unknown; details: Record<string, string> };
 
 // Checks the order and saves it. The cart comes from the shopper's browser, so
 // the pieces and prices are taken from the catalogue here, not from the cart.
-// Returns the new order's id, or a message for the shopper.
-export async function createOrder({ cart, details }: NewOrder): Promise<{ id: string } | { error: string }> {
+// Returns the new order's id, or a message for the shopper. The delivery
+// address is saved to the account to fill in checkout next time.
+export async function createOrder({ customerId, cart, details }: NewOrder): Promise<{ id: string } | { error: string }> {
   const lines = sanitize(cart).map((item) => ({ ...item, product: getProduct(item.id)! }));
   if (lines.length === 0) return { error: "Your cart is empty." };
 
@@ -105,9 +108,22 @@ export async function createOrder({ cart, details }: NewOrder): Promise<{ id: st
 
   const { data, error } = await supabase()
     .from("orders")
-    .insert({ ...customer, items, ...prices })
+    .insert({ ...customer, customer_id: customerId, items, ...prices })
     .select("id")
     .single();
   if (error) throw error;
+
+  const address: SavedAddress = {
+    firstName: customer.first_name,
+    lastName: customer.last_name ?? "",
+    address: customer.address,
+    apartment: customer.apartment ?? "",
+    pin: customer.pin,
+    city: customer.city,
+    state: customer.state,
+  };
+  const saved = await supabase().from("customers").update({ address }).eq("id", customerId);
+  // The order is in; a missed address only means typing it again next time.
+  if (saved.error) console.error("Couldn't save address", saved.error);
   return { id: data.id };
 }

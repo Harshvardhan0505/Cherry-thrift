@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { HeartIcon } from "@/components/HeartIcon";
+import { getCustomer } from "@/lib/auth";
 import { RECOMMENDATION_DISCOUNT } from "@/lib/cart";
 import { getOrder, type Order, type OrderStatus } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
@@ -56,7 +57,9 @@ export default function OrderPage({ params }: PageProps<"/orders/[id]">) {
 
 async function OrderDetails({ params }: { params: PageProps<"/orders/[id]">["params"] }) {
   const { id } = await params;
-  const order = await getOrder(id);
+  const customer = await getCustomer();
+  if (!customer) redirect(`/login?next=/orders/${id}`);
+  const order = await getOrder(id, customer.id);
   if (!order) notFound();
   const { title, note } = HEADLINES[order.status];
   const placedOn = new Date(order.createdAt).toLocaleDateString("en-IN", {

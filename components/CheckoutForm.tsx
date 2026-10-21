@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState, useTransition } from "react";
 import { placeOrder } from "@/app/(checkout)/checkout/actions";
+import type { Customer } from "@/lib/auth";
 import { CITIES_BY_STATE, STATES, lookupPin, matchState, suggest } from "@/lib/india";
 import { formatPrice } from "@/lib/products";
 import { Autocomplete } from "./Autocomplete";
 import { useCart } from "./CartProvider";
-import { ORDERS_CHANGED } from "./OrdersLink";
 import { OrderTotal } from "./OrderTotal";
 
 const inputClass =
@@ -54,17 +54,26 @@ function Label({ text, optional = false }: { text: string; optional?: boolean })
 const validateState = (value: string) =>
   matchState(value) ? "" : "Please pick your state from the list.";
 
-// `heading` is the page's title block.
-export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
+// `heading` is the page's title block. `customer` fills in the form from
+// their account and last order.
+export function CheckoutForm({
+  heading,
+  customer,
+}: {
+  heading: React.ReactNode;
+  customer: Omit<Customer, "id">;
+}) {
   const { lines, subtotal, discount, total, clear } = useCart();
   const router = useRouter();
   const [placing, startPlacing] = useTransition();
   const [error, setError] = useState<string | null>(null);
   // Set once the order is saved, while "Your orders" loads.
   const [placedId, setPlacedId] = useState<string | null>(null);
-  const [pin, setPin] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
+  const saved = customer.address;
+  const [firstName, ...otherNames] = customer.name.split(/\s+/);
+  const [pin, setPin] = useState(saved?.pin ?? "");
+  const [city, setCity] = useState(saved?.city ?? "");
+  const [state, setState] = useState(saved?.state ?? "");
   const [pinNote, setPinNote] = useState<{ tone: "info" | "ok" | "warn"; text: string } | null>(null);
   const pinLookup = useRef<AbortController | null>(null);
 
@@ -118,7 +127,6 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
       }
       setPlacedId(result.id);
       clear();
-      window.dispatchEvent(new Event(ORDERS_CHANGED));
       router.push(`/orders?placed=${result.id}`);
     });
   }
@@ -168,6 +176,7 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
                   <Label text="Phone" />
                   <input
                     name="phone"
+                    defaultValue={customer.phone}
                     type="tel"
                     inputMode="numeric"
                     maxLength={10}
@@ -180,7 +189,13 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
                 </label>
                 <label className={labelClass}>
                   <Label text="Email" optional />
-                  <input name="email" type="email" autoComplete="email" className={inputClass} />
+                  <input
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    defaultValue={customer.email ?? ""}
+                    className={inputClass}
+                  />
                 </label>
               </div>
             </fieldset>
@@ -194,6 +209,7 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
                   <Label text="First name" />
                   <input
                     name="firstName"
+                    defaultValue={saved?.firstName ?? firstName}
                     autoComplete="given-name"
                     className={inputClass}
                     {...need("Please add your first name.")}
@@ -201,12 +217,18 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
                 </label>
                 <label className={labelClass}>
                   <Label text="Last name" optional />
-                  <input name="lastName" autoComplete="family-name" className={inputClass} />
+                  <input
+                    name="lastName"
+                    autoComplete="family-name"
+                    defaultValue={saved?.lastName ?? otherNames.join(" ")}
+                    className={inputClass}
+                  />
                 </label>
                 <label className={`sm:col-span-2 ${labelClass}`}>
                   <Label text="Address" />
                   <input
                     name="address"
+                    defaultValue={saved?.address}
                     autoComplete="address-line1"
                     placeholder="House number, street, area"
                     className={inputClass}
@@ -215,7 +237,12 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
                 </label>
                 <label className={`sm:col-span-2 ${labelClass}`}>
                   <Label text="Apartment, landmark" optional />
-                  <input name="apartment" autoComplete="address-line2" className={inputClass} />
+                  <input
+                    name="apartment"
+                    autoComplete="address-line2"
+                    defaultValue={saved?.apartment}
+                    className={inputClass}
+                  />
                 </label>
                 <label className={`sm:col-span-2 ${labelClass}`}>
                   <Label text="PIN code" />

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { HeartIcon } from "@/components/HeartIcon";
 import { StatusPill } from "@/components/StatusPill";
-import { ORDER_HISTORY_COOKIE, readOrderHistory } from "@/lib/order-history";
+import { logOut } from "@/lib/account-actions";
+import { getCustomer } from "@/lib/auth";
 import { getOrderSummaries, type OrderItem } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
 
@@ -35,8 +36,9 @@ export default function OrdersPage({ searchParams }: PageProps<"/orders">) {
 
 async function OrderList({ searchParams }: { searchParams: PageProps<"/orders">["searchParams"] }) {
   const { placed } = await searchParams;
-  const ids = readOrderHistory((await cookies()).get(ORDER_HISTORY_COOKIE)?.value);
-  const orders = await getOrderSummaries(ids);
+  const customer = await getCustomer();
+  if (!customer) redirect("/login?next=/orders");
+  const orders = await getOrderSummaries(customer.id);
   // Set right after checkout, to say the newest order went through.
   const justPlaced = orders.find((order) => order.id === placed);
 
@@ -50,6 +52,7 @@ async function OrderList({ searchParams }: { searchParams: PageProps<"/orders">[
         >
           Start shopping
         </Link>
+        <SignedInAs name={customer.name} />
       </div>
     );
   }
@@ -99,7 +102,19 @@ async function OrderList({ searchParams }: { searchParams: PageProps<"/orders">[
           );
         })}
       </ul>
+      <SignedInAs name={customer.name} />
     </>
+  );
+}
+
+function SignedInAs({ name }: { name: string }) {
+  return (
+    <form action={logOut} className="mt-8 text-center text-sm text-rose">
+      Signed in as {name} ·{" "}
+      <button type="submit" className="cursor-pointer underline underline-offset-4 hover:text-cherry">
+        Log out
+      </button>
+    </form>
   );
 }
 

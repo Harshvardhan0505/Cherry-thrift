@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Jost } from "next/font/google";
+import { Caveat, Instrument_Serif, Jost } from "next/font/google";
 import { CartProvider } from "@/components/CartProvider";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -16,6 +16,13 @@ const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
 });
 
+// Handwriting, for the scrapbook notes on the log in and sign up pages.
+const caveat = Caveat({
+  variable: "--font-caveat",
+  weight: ["500", "600"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: {
     default: site.name,
@@ -28,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${jost.variable} ${instrumentSerif.variable} h-full antialiased`}
+      className={`${jost.variable} ${instrumentSerif.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
         {/* Each route group adds its own header (and footer) around the page. */}
