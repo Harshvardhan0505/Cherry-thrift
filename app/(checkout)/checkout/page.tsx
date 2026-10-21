@@ -4,7 +4,7 @@ import { HeartIcon } from "@/components/HeartIcon";
 
 export const metadata: Metadata = {
   title: "Checkout",
-  description: "Send your Cherry Thrifts order to us on WhatsApp.",
+  description: "Place your Cherry Thrifts order.",
 };
 
 export default function CheckoutPage() {

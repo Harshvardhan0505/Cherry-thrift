@@ -12,6 +12,14 @@ export function orderDiscount(subtotal: number): number {
   return Math.round((subtotal * RECOMMENDATION_DISCOUNT) / 100);
 }
 
+// What an order costs. The cart and the server both price orders with this,
+// so the total a shopper sees is the total that gets saved.
+export function orderPrices(lines: { price: number; recommended: boolean }[]) {
+  const subtotal = lines.reduce((sum, line) => sum + line.price, 0);
+  const discount = lines.some((line) => line.recommended) ? orderDiscount(subtotal) : 0;
+  return { subtotal, discount, total: subtotal - discount };
+}
+
 const KEY = "cherry-thrifts-cart";
 const EMPTY: CartItem[] = [];
 
@@ -19,7 +27,7 @@ let cache: CartItem[] | null = null;
 const listeners = new Set<() => void>();
 
 // Drops anything that no longer matches the catalogue.
-function sanitize(value: unknown): CartItem[] {
+export function sanitize(value: unknown): CartItem[] {
   if (!Array.isArray(value)) return EMPTY;
   const seen = new Set<string>();
   const items: CartItem[] = [];

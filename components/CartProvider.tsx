@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore } from "react";
-import { cartStore, orderDiscount } from "@/lib/cart";
+import { cartStore, orderPrices } from "@/lib/cart";
 import { getProduct, type Product } from "@/lib/products";
 import { CartDrawer } from "./CartDrawer";
 
@@ -54,13 +54,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const product = getProduct(item.id);
       return product ? [{ product, size: item.size, recommended: item.recommended }] : [];
     });
-    const subtotal = lines.reduce((sum, line) => sum + line.product.price, 0);
-    const discount = lines.some((line) => line.recommended) ? orderDiscount(subtotal) : 0;
+    const prices = orderPrices(
+      lines.map((line) => ({ price: line.product.price, recommended: line.recommended })),
+    );
     return {
       lines,
-      subtotal,
-      discount,
-      total: subtotal - discount,
+      ...prices,
       isOpen,
       open,
       close,

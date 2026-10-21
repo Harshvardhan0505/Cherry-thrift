@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
-import { RECOMMENDATION_DISCOUNT } from "@/lib/cart";
+import { useRouter } from "next/navigation";
+import { useCallback, useRef, useState, useTransition } from "react";
+import { placeOrder } from "@/app/(checkout)/checkout/actions";
 import { CITIES_BY_STATE, STATES, lookupPin, matchState, suggest } from "@/lib/india";
 import { formatPrice } from "@/lib/products";
-import { site } from "@/lib/site";
 import { Autocomplete } from "./Autocomplete";
-import { useCart, type CartLine } from "./CartProvider";
+import { useCart } from "./CartProvider";
+import { ORDERS_CHANGED } from "./OrdersLink";
 import { OrderTotal } from "./OrderTotal";
 
 const inputClass =
@@ -53,50 +54,14 @@ function Label({ text, optional = false }: { text: string; optional?: boolean })
 const validateState = (value: string) =>
   matchState(value) ? "" : "Please pick your state from the list.";
 
-// The order as a WhatsApp message. Asterisks make text bold in WhatsApp.
-function orderMessage(
-  lines: CartLine[],
-  prices: { subtotal: number; discount: number; total: number },
-  form: FormData,
-): string {
-  const field = (name: string) => String(form.get(name) ?? "").trim();
-  const state = matchState(field("state")) ?? field("state");
-  const address = [
-    field("address"),
-    field("apartment"),
-    `${field("city")}, ${state} ${field("pin")}`,
-  ].filter(Boolean);
-  const name = `${field("firstName")} ${field("lastName")}`.trim();
-
-  return [
-    `Hi ${site.name}! I'd like to place an order.`,
-    "",
-    "*Order*",
-    ...lines.map(
-      ({ product, size }, i) =>
-        `${i + 1}. ${product.name} · ${size === "Free size" ? size : `Size ${size}`} · ${formatPrice(product.price)}`,
-    ),
-    ...(prices.discount > 0
-      ? [
-          `Items: ${formatPrice(prices.subtotal)}`,
-          `${RECOMMENDATION_DISCOUNT}% off the order: −${formatPrice(prices.discount)}`,
-        ]
-      : []),
-    `*Total: ${formatPrice(prices.total)}*`,
-    "",
-    `*Name:* ${name}`,
-    `*Phone:* ${field("phone")}`,
-    ...(field("email") ? [`*Email:* ${field("email")}`] : []),
-    "*Address:*",
-    ...address,
-  ].join("\n");
-}
-
 // `heading` is the page's title block.
 export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
   const { lines, subtotal, discount, total, clear } = useCart();
-  // Set once the order has been handed to WhatsApp.
-  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
+  const router = useRouter();
+  const [placing, startPlacing] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  // Set once the order is saved, while "Your orders" loads.
+  const [placedId, setPlacedId] = useState<string | null>(null);
   const [pin, setPin] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -142,10 +107,29 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const message = orderMessage(lines, { subtotal, discount, total }, new FormData(event.currentTarget));
-    const url = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank", "noopener");
-    setWhatsappUrl(url);
+    const details = Object.fromEntries(new FormData(event.currentTarget));
+    const cart = lines.map(({ product, size, recommended }) => ({ id: product.id, size, recommended }));
+    setError(null);
+    startPlacing(async () => {
+      const result = await placeOrder(cart, details);
+      if ("error" in result) {
+        setError(result.error);
+        return;
+      }
+      setPlacedId(result.id);
+      clear();
+      window.dispatchEvent(new Event(ORDERS_CHANGED));
+      router.push(`/orders?placed=${result.id}`);
+    });
+  }
+
+  if (placedId) {
+    return (
+      <>
+        {heading}
+        <p className="mt-12 text-center text-lg text-rose">Taking you to your orders…</p>
+      </>
+    );
   }
 
   if (lines.length === 0) {
@@ -171,48 +155,7 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
     <>
       {heading}
       <div className="mx-auto mt-10 max-w-5xl sm:mt-12">
-        {whatsappUrl && (
-          <div className="mx-auto max-w-xl rounded-2xl bg-white px-6 py-12 text-center shadow-sm">
-            <h2 className="font-serif text-4xl text-cherry">One last step</h2>
-            <p className="mt-4 text-lg">
-              WhatsApp has opened with your order typed out. Press send there to place it, and
-              we&apos;ll reply to confirm payment and delivery.
-            </p>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-block rounded-md bg-cherry px-7 py-3.5 font-medium text-white transition-colors hover:bg-wine"
-            >
-              WhatsApp didn&apos;t open? Tap here
-            </a>
-            <p className="mt-6">
-              <Link
-                href="/"
-                onClick={clear}
-                className="text-cherry underline underline-offset-4 hover:text-wine"
-              >
-                I&apos;ve sent it. Empty my cart and keep browsing
-              </Link>
-            </p>
-            <p className="mt-4">
-              <button
-                type="button"
-                onClick={() => setWhatsappUrl(null)}
-                className="cursor-pointer text-rose underline underline-offset-4 hover:text-cherry"
-              >
-                ← Oops, let me edit my details
-              </button>
-            </p>
-          </div>
-        )}
-
-        {/* Kept on the page while the step above shows, so going back finds
-            everything just as it was typed. */}
-        <div
-          hidden={whatsappUrl !== null}
-          className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8"
-        >
+        <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8">
           <form onSubmit={handleSubmit} className="order-2 rounded-2xl bg-white p-6 shadow-sm sm:p-10 lg:order-1">
             <p className="text-sm text-rose">
               Fields marked <span className="text-cherry">*</span> are needed to place your order.
@@ -337,13 +280,18 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
 
             <button
               type="submit"
-              className="mt-10 w-full cursor-pointer rounded-md bg-cherry px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-wine"
+              disabled={placing}
+              className="mt-10 w-full cursor-pointer rounded-md bg-cherry px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-wine disabled:cursor-wait disabled:opacity-70"
             >
-              Place order on WhatsApp
+              {placing ? "Placing your order…" : "Place order"}
             </button>
+            {error && (
+              <p role="alert" className="mt-3 text-center text-cherry">
+                {error}
+              </p>
+            )}
             <p className="mt-3 text-center text-sm text-rose">
-              No payment is taken on this site. Your order opens as a WhatsApp message to us, and we
-              confirm payment and delivery there.
+              No payment now. We&apos;ll reach out to confirm payment and delivery.
             </p>
           </form>
 
@@ -366,7 +314,7 @@ export function CheckoutForm({ heading }: { heading: React.ReactNode }) {
               </ul>
               <div className="mt-4 border-t border-petal pt-4">
                 <OrderTotal lines={lines} subtotal={subtotal} discount={discount} total={total} />
-                <p className="mt-2 text-sm text-rose">Delivery is agreed with you on WhatsApp.</p>
+                <p className="mt-2 text-sm text-rose">We&apos;ll confirm delivery when we reach out.</p>
               </div>
             </div>
           </aside>

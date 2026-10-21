@@ -3,6 +3,7 @@ import { categories } from "@/lib/products";
 import { site } from "@/lib/site";
 import { CartButton } from "./CartButton";
 import { InstagramIcon } from "./InstagramIcon";
+import { OrdersLink } from "./OrdersLink";
 
 // `overlay` is for the home page, where the header sits on top of the hero
 // photo in white.
@@ -19,10 +20,10 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           : "relative z-30 border-b border-petal bg-white text-wine"
       }
     >
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-[6vw] py-5 md:gap-x-12 md:py-6">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 px-[6vw] py-5 sm:gap-x-6 md:gap-x-12 md:py-6">
         <Link
           href="/"
-          className={`text-xl font-medium uppercase tracking-[0.22em] sm:text-2xl md:text-[1.75rem] ${overlay ? "" : "text-cherry"}`}
+          className={`text-xl font-medium uppercase tracking-[0.18em] sm:text-2xl sm:tracking-[0.22em] md:text-[1.75rem] ${overlay ? "" : "text-cherry"}`}
         >
           {site.name}
         </Link>
@@ -44,7 +45,8 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           </Link>
         </nav>
 
-        <div className="ml-auto flex items-center gap-4 text-[0.95rem]">
+        <div className="ml-auto flex items-center gap-3 text-[0.95rem] sm:gap-4">
+          <OrdersLink className={linkClass} iconClass={overlay ? "" : "text-cherry"} />
           <Link href="/#contact" className={`hidden sm:inline ${linkClass}`}>
             Contact
           </Link>
