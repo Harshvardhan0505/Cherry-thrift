@@ -5,8 +5,9 @@ import { matchState } from "./india";
 import { getProduct } from "./products";
 import { supabase } from "./supabase";
 
-export const ORDER_STATUSES = ["placed", "confirmed", "shipped", "delivered", "cancelled"] as const;
-export type OrderStatus = (typeof ORDER_STATUSES)[number];
+import type { OrderStatus } from "./order-status";
+
+export type { OrderStatus } from "./order-status";
 
 // A piece as it was when the order was placed, so later price or photo
 // changes don't rewrite past orders.
@@ -22,6 +23,8 @@ export type Order = {
   subtotal: number;
   discount: number;
   total: number;
+  courier: string | null;
+  trackingNumber: string | null;
 };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,7 +34,7 @@ export async function getOrder(id: string, customerId: string): Promise<Order | 
   if (!UUID.test(id)) return null;
   const { data, error } = await supabase()
     .from("orders")
-    .select("id, number, created_at, status, items, subtotal, discount, total")
+    .select("id, number, created_at, status, items, subtotal, discount, total, courier, tracking_number")
     .eq("id", id)
     .eq("customer_id", customerId)
     .maybeSingle();
@@ -46,6 +49,8 @@ export async function getOrder(id: string, customerId: string): Promise<Order | 
     subtotal: data.subtotal,
     discount: data.discount,
     total: data.total,
+    courier: data.courier,
+    trackingNumber: data.tracking_number,
   };
 }
 

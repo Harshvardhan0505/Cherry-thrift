@@ -1,18 +1,27 @@
-import type { OrderStatus } from "@/lib/orders";
+import { CUSTOMER_LABELS, type OrderStatus } from "@/lib/order-status";
 
-const STYLES: Record<OrderStatus, { label: string; className: string }> = {
-  placed: { label: "Placed", className: "bg-blush text-cherry" },
-  confirmed: { label: "Confirmed", className: "bg-petal text-wine" },
-  shipped: { label: "Shipped", className: "bg-sage text-sage-deep" },
-  delivered: { label: "Delivered", className: "bg-sage-deep text-white" },
-  cancelled: { label: "Cancelled", className: "bg-shell text-rose ring-1 ring-petal" },
+const STYLES: Record<OrderStatus, string> = {
+  placed: "bg-blush text-cherry",
+  confirmed: "bg-petal text-wine",
+  shipped: "bg-[#e6ecdf] text-sage-deep",
+  in_transit: "bg-sage text-sage-deep",
+  delivered: "bg-sage-deep text-white",
+  cancelled: "bg-shell text-rose ring-1 ring-petal",
 };
 
-export function StatusPill({ status }: { status: OrderStatus }) {
-  const { label, className } = STYLES[status];
+// `labels` lets the admin panel call a placed order "New".
+export function StatusPill({
+  status,
+  labels = CUSTOMER_LABELS,
+}: {
+  status: OrderStatus;
+  labels?: Record<OrderStatus, string>;
+}) {
   return (
-    <span className={`rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${className}`}>
-      {label}
+    <span
+      className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${STYLES[status]}`}
+    >
+      {labels[status]}
     </span>
   );
 }

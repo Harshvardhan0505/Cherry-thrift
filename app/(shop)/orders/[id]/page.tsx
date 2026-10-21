@@ -3,10 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
+import { CopyButton } from "@/components/CopyButton";
 import { HeartIcon } from "@/components/HeartIcon";
 import { getCustomer } from "@/lib/auth";
 import { RECOMMENDATION_DISCOUNT } from "@/lib/cart";
-import { getOrder, type Order, type OrderStatus } from "@/lib/orders";
+import { COURIERS, CUSTOMER_LABELS, STEPS, type OrderStatus } from "@/lib/order-status";
+import { getOrder, type Order } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -25,6 +27,10 @@ const HEADLINES: Record<OrderStatus, { title: string; note: string }> = {
     note: "We're packing your pieces with love.",
   },
   shipped: {
+    title: "Your order has shipped.",
+    note: "It's with the courier now.",
+  },
+  in_transit: {
     title: "Your order is on its way.",
     note: "It'll be with you soon.",
   },
@@ -37,13 +43,6 @@ const HEADLINES: Record<OrderStatus, { title: string; note: string }> = {
     note: "Questions about it? Get in touch with us anytime.",
   },
 };
-
-const STEPS = [
-  { status: "placed", label: "Placed" },
-  { status: "confirmed", label: "Confirmed" },
-  { status: "shipped", label: "Shipped" },
-  { status: "delivered", label: "Delivered" },
-] as const;
 
 export default function OrderPage({ params }: PageProps<"/orders/[id]">) {
   return (
@@ -85,6 +84,9 @@ async function OrderDetails({ params }: { params: PageProps<"/orders/[id]">["par
 
       <div className="mt-10 rounded-2xl bg-white p-6 shadow-sm sm:mt-12 sm:p-10">
         {order.status !== "cancelled" && <Progress status={order.status} />}
+        {order.trackingNumber && ["shipped", "in_transit", "delivered"].includes(order.status) && (
+          <Tracking courier={order.courier} number={order.trackingNumber} />
+        )}
 
         <div className={order.status !== "cancelled" ? "mt-10 border-t border-petal pt-8" : ""}>
           <div className="flex items-baseline justify-between gap-4">
@@ -122,14 +124,14 @@ async function OrderDetails({ params }: { params: PageProps<"/orders/[id]">["par
 }
 
 function Progress({ status }: { status: OrderStatus }) {
-  const current = STEPS.findIndex((step) => step.status === status);
+  const current = STEPS.findIndex((step) => step === status);
   return (
-    <ol className="grid grid-cols-4" aria-label="Order progress">
+    <ol className="grid grid-cols-5" aria-label="Order progress">
       {STEPS.map((step, index) => {
         const done = index <= current;
         return (
           <li
-            key={step.status}
+            key={step}
             aria-current={index === current ? "step" : undefined}
             className="relative flex flex-col items-center text-center"
           >
@@ -147,12 +149,31 @@ function Progress({ status }: { status: OrderStatus }) {
               }`}
             />
             <span className={`mt-2 text-xs uppercase tracking-wide sm:text-sm ${done ? "text-cherry" : "text-rose"}`}>
-              {step.label}
+              {CUSTOMER_LABELS[step]}
             </span>
           </li>
         );
       })}
     </ol>
+  );
+}
+
+// Once shipped: the courier, the tracking number and where to track it.
+function Tracking({ courier, number }: { courier: string | null; number: string }) {
+  const page = courier ? COURIERS[courier] : null;
+  return (
+    <div className="mt-8 rounded-xl bg-shell px-5 py-4">
+      <p className="text-sm text-rose">{courier ? `Shipped with ${courier}` : "Tracking number"}</p>
+      <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+        <span className="font-medium tracking-wide">{number}</span>
+        <CopyButton text={number} />
+        {page && (
+          <a href={page} target="_blank" rel="noopener noreferrer" className="text-sm text-cherry underline underline-offset-4">
+            Track your parcel →
+          </a>
+        )}
+      </p>
+    </div>
   );
 }
 

@@ -349,7 +349,7 @@ export function ResetPasswordForm({ token, name }: { token: string; name: string
 export function ResetLinkExpired() {
   return (
     <>
-      <Heading sub="this link has expired or was already used. reset links work once, for 30 minutes ♡">
+      <Heading sub="this link has expired or was already used. reset links only work once, for a short time ♡">
         oh <em className="text-cherry">no</em>
       </Heading>
       <Link href="/forgot-password" className={`${buttonClass} block text-center`}>

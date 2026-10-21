@@ -105,23 +105,29 @@ export const getCustomer = cache(async (): Promise<Customer | null> => {
 const RESET_MINUTES = 30;
 
 // A new reset link for the customer, or null if one was sent in the last
-// minute (so the form can't be used to flood someone's inbox).
-export async function createPasswordReset(customerId: string): Promise<string | null> {
+// minute (so the form can't be used to flood someone's inbox). The team can
+// make links that last longer, to send on WhatsApp.
+export async function createPasswordReset(
+  customerId: string,
+  { minutes = RESET_MINUTES, fromTeam = false }: { minutes?: number; fromTeam?: boolean } = {},
+): Promise<string | null> {
   const db = supabase();
-  const { data: recent, error: recentError } = await db
-    .from("password_resets")
-    .select("created_at")
-    .eq("customer_id", customerId)
-    .gt("created_at", new Date(Date.now() - 60_000).toISOString())
-    .limit(1);
-  if (recentError) throw recentError;
-  if (recent.length > 0) return null;
+  if (!fromTeam) {
+    const { data: recent, error: recentError } = await db
+      .from("password_resets")
+      .select("created_at")
+      .eq("customer_id", customerId)
+      .gt("created_at", new Date(Date.now() - 60_000).toISOString())
+      .limit(1);
+    if (recentError) throw recentError;
+    if (recent.length > 0) return null;
+  }
 
   const token = randomBytes(32).toString("base64url");
   const { error } = await db.from("password_resets").insert({
     token_hash: hashToken(token),
     customer_id: customerId,
-    expires_at: new Date(Date.now() + RESET_MINUTES * 60_000).toISOString(),
+    expires_at: new Date(Date.now() + minutes * 60_000).toISOString(),
   });
   if (error) throw error;
   return token;
