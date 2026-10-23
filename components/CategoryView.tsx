@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { categories, getProducts, type CategorySlug } from "@/lib/products";
 import { ProductGrid } from "./ProductGrid";
-import { tabClass } from "./tabs";
+import { tabClass, tabListClass } from "./tabs";
 
 function findCategory(slug: CategorySlug) {
   return categories.find((category) => category.slug === slug)!;
@@ -24,17 +24,19 @@ export function CategoryView({ slug }: { slug: CategorySlug }) {
         <p className="mx-auto mt-4 max-w-xl text-wine/80">{category.blurb}</p>
       </header>
 
-      <nav aria-label="Categories" className="mt-10 flex flex-wrap justify-center gap-2 sm:gap-4">
-        {categories.map((c) => (
-          <Link
-            key={c.slug}
-            href={`/${c.slug}`}
-            aria-current={c.slug === slug ? "page" : undefined}
-            className={tabClass(c.slug === slug)}
-          >
-            {c.label}
-          </Link>
-        ))}
+      <nav aria-label="Categories" className="mt-10 flex justify-center">
+        <div className={tabListClass}>
+          {categories.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/${c.slug}`}
+              aria-current={c.slug === slug ? "page" : undefined}
+              className={tabClass(c.slug === slug)}
+            >
+              {c.label}
+            </Link>
+          ))}
+        </div>
       </nav>
 
       <p className="mt-10 text-sm text-rose">

@@ -1,0 +1,46 @@
+/*
+ * Glass "dressing" — the parts the SVG filter does NOT do.
+ *
+ * The engine bends light at the rim; this stylesheet supplies the translucent
+ * tint, the rounded corner, and the inset highlights/shadow that read as a
+ * physical pane. Tuned for a dark backdrop; see the `.light` modifier for a
+ * pale one. Adjust the numbers freely — none of this is load-bearing for the
+ * refraction, it's pure surface styling.
+ */
+
+.surface {
+  position: relative;
+  border-radius: 28px;
+  /* A faint dark tint keeps interior text legible over busy backgrounds.
+     Because backdrop-filter refracts what's behind, keep this translucent. */
+  background: linear-gradient(180deg, rgba(14, 14, 22, 0.18), rgba(14, 14, 22, 0.32));
+  box-shadow:
+    /* Cast shadow — lifts the pane off the page. */
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    /* Top inner highlight — the lit top bevel. */
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    /* Bottom inner glare — soft light pooling at the base. */
+    inset 0 -8px 20px rgba(255, 255, 255, 0.06),
+    /* Hairline rim — defines the glass edge. */
+    inset 0 0 0 1px rgba(255, 255, 255, 0.13);
+  color: rgb(245, 245, 247);
+}
+
+/* Pale-backdrop variant: darken the rim/tint so the edge stays visible on
+   light imagery instead of washing out. Add alongside `.surface`. */
+.light {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.14));
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -8px 20px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  color: rgb(20, 20, 28);
+}
+
+/* Applied automatically by the engine on Safari/Firefox, where the SVG
+   refraction no-ops and a frosted blur stands in. Nudge the tint up a touch so
+   the frosted fallback still reads as a distinct pane. */
+.surface:global(.lg-fallback) {
+  background: linear-gradient(180deg, rgba(14, 14, 22, 0.26), rgba(14, 14, 22, 0.4));
+}
