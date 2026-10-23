@@ -14,6 +14,16 @@
   /* Warm paper and its hairlines, for the scrapbook log in pages. */
   --color-cream: #fbf3ef;
   --color-seam: #efd9dd;
+
+  /* Shadows are tinted wine, never grey: resting, lifted on hover, and
+     floating above the page. */
+  --shadow-rest: 0 1px 2px rgb(74 20 32 / 0.05), 0 8px 24px -16px rgb(74 20 32 / 0.25);
+  --shadow-lift: 0 2px 4px rgb(74 20 32 / 0.06), 0 26px 50px -24px rgb(74 20 32 / 0.42);
+  --shadow-float: 0 1px 2px rgb(74 20 32 / 0.08), 0 40px 80px -30px rgb(74 20 32 / 0.5);
+
+  --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --animate-marquee: marquee 38s linear infinite;
 }
 
 @theme inline {
@@ -24,6 +34,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Room for the sticky header when jumping to #contact and #shop. */
+  scroll-padding-top: 6rem;
 }
 
 body {
@@ -31,63 +43,265 @@ body {
   color: var(--color-wine);
 }
 
+::selection {
+  background: var(--color-cherry);
+  color: #fff;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-cherry);
   outline-offset: 3px;
 }
 
-/* Product card: on hover or keyboard focus the lower half of the photo
-   frosts over and offers the sizes. */
+/* Site header. At the top of the page it's a full-width bar: frosted white,
+   or clear over the home page's hero photo. Once the page scrolls, the bar
+   lifts off into a long floating pill of liquid glass (see HeaderShell). The
+   outer element keeps the same height in both states, so nothing jumps.
+   `data-on-dark` marks when it sits over the dark hero: white text and logo,
+   wine-tinted glass. `--header-accent` colours the logo and icons. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  --header-accent: var(--color-cherry);
+  --header-hover: var(--color-cherry);
+  color: var(--color-wine);
+  transition:
+    padding 0.55s var(--ease-out-soft),
+    color 0.35s;
+}
+
+.site-header[data-overlay] {
+  position: fixed;
+  inset-inline: 0;
+}
+
+.site-header[data-on-dark] {
+  --header-accent: #fff;
+  --header-hover: rgb(255 255 255 / 0.75);
+  color: #fff;
+}
+
+.site-header__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* Tight on phones, so the icons stay beside the logo inside the pill. */
+  gap: 0.75rem 0.5rem;
+  max-width: 100%;
+  margin-inline: auto;
+  padding: 1rem 6vw;
+  background: rgb(255 255 255 / 0.82);
+  backdrop-filter: blur(16px) saturate(1.5);
+  border-bottom: 1px solid rgb(243 201 210 / 0.7);
+  transition:
+    max-width 0.55s var(--ease-out-soft),
+    padding 0.55s var(--ease-out-soft),
+    border-radius 0.55s var(--ease-out-soft),
+    background 0.4s,
+    border-color 0.4s,
+    box-shadow 0.4s;
+}
+
+@media (min-width: 40rem) {
+  .site-header__bar {
+    column-gap: 1.5rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  .site-header__bar {
+    column-gap: 3rem;
+    padding-block: 1.25rem;
+  }
+}
+
+/* Clear over the hero photo. */
+.site-header[data-overlay]:not([data-scrolled]) .site-header__bar {
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+}
+
+/* Scrolled: a compact pill floating clear of the top, centred and no wider
+   than its links need. HeaderShell holds the header's full height while the
+   pill shrinks, so the page below doesn't move. */
+.site-header[data-scrolled] {
+  padding: 0.625rem clamp(0.625rem, 2vw, 1.5rem) 0;
+  pointer-events: none;
+}
+
+.site-header[data-scrolled] .site-header__bar {
+  max-width: 62rem;
+  pointer-events: auto;
+  padding: 0.5rem 1.125rem;
+  border-radius: 24px;
+  border-color: transparent;
+  /* Enough tint that wine text reads over dark photos too. */
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.66));
+  box-shadow:
+    0 14px 36px -18px rgb(74 20 32 / 0.4),
+    inset 0 1px 1px rgb(255 255 255 / 0.9),
+    inset 0 -4px 12px rgb(181 18 62 / 0.05),
+    inset 0 0 0 1px rgb(74 20 32 / 0.08);
+}
+
+@media (min-width: 48rem) {
+  .site-header[data-scrolled] .site-header__bar {
+    column-gap: 2rem;
+    padding: 0.4375rem 1.5rem;
+    border-radius: 999px;
+  }
+
+  .site-header[data-scrolled] nav {
+    column-gap: 1.75rem;
+  }
+}
+
+.site-header[data-scrolled][data-on-dark] .site-header__bar {
+  background: linear-gradient(180deg, rgb(48 10 20 / 0.4), rgb(48 10 20 / 0.52));
+  box-shadow:
+    0 18px 40px -20px rgb(0 0 0 / 0.55),
+    inset 0 1px 1px rgb(255 255 255 / 0.4),
+    inset 0 -6px 16px rgb(255 255 255 / 0.05),
+    inset 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+/* Safari and Firefox get frosted glass instead of refraction (the engine adds
+   .lg-fallback); a touch more tint keeps it reading as a pane. */
+.site-header[data-scrolled] .site-header__bar.lg-fallback {
+  background: rgb(255 255 255 / 0.84);
+}
+
+.site-header[data-scrolled][data-on-dark] .site-header__bar.lg-fallback {
+  background: rgb(48 10 20 / 0.6);
+}
+
+/* The logo shrinks to fit the pill. */
+.site-header__logo img {
+  transition:
+    filter 0.5s,
+    rotate 0.5s,
+    height 0.55s var(--ease-out-soft);
+}
+
+.site-header[data-scrolled] .site-header__logo img:first-child {
+  height: 2rem;
+}
+
+.site-header[data-scrolled] .site-header__logo img:last-child {
+  height: 1.375rem;
+}
+
+@media (min-width: 48rem) {
+  .site-header[data-scrolled] .site-header__logo img:first-child {
+    height: 2.25rem;
+  }
+
+  .site-header[data-scrolled] .site-header__logo img:last-child {
+    height: 1.5rem;
+  }
+}
+
+/* The logo is white on dark backgrounds and in its own wine and cherry on
+   light ones. */
+.site-header[data-on-dark] .site-header__logo img {
+  filter: brightness(0) invert(1) drop-shadow(0 1px 8px rgb(0 0 0 / 0.25));
+}
+
+/* Nav links: an underline that draws in from the left. */
+.nav-link {
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -6px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s var(--ease-out-soft);
+}
+
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Product card: a white card with the photo inset. On hover or keyboard
+   focus it lifts, and a frosted panel slides up offering the sizes. */
 .product-card {
+  position: relative;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 22px;
   background: #fff;
+  box-shadow: var(--shadow-rest);
+  transition:
+    transform 0.45s var(--ease-out-soft),
+    box-shadow 0.45s var(--ease-out-soft);
+}
+
+.product-card:hover,
+.product-card:focus-within {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
 }
 
 .product-card__photo {
   position: relative;
   aspect-ratio: 4 / 5;
+  margin: 8px 8px 0;
   overflow: hidden;
+  border-radius: 16px;
   /* Shown while the photo loads. */
   background: var(--color-petal);
 }
 
 .product-card__photo img {
-  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: transform 0.8s var(--ease-out-soft);
 }
 
 .product-card__sizes {
   position: absolute;
-  inset: auto 0 0;
+  inset: auto 10px 10px;
   display: flex;
-  height: 56%;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
+  gap: 0.6rem;
+  padding: 0.9rem 0.75rem 1rem;
+  border-radius: 14px;
   background: rgb(255 255 255 / 0.72);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: 0 10px 30px -18px rgb(74 20 32 / 0.5);
   color: var(--color-wine);
   opacity: 0;
+  transform: translateY(14px);
   pointer-events: none;
-  transition: opacity 0.25s;
+  transition:
+    opacity 0.3s,
+    transform 0.4s var(--ease-out-soft);
 }
 
 .product-card:hover .product-card__sizes,
 .product-card:focus-within .product-card__sizes {
   opacity: 1;
+  transform: none;
   pointer-events: auto;
 }
 
 .product-card:hover .product-card__photo img {
-  transform: scale(1.04);
+  transform: scale(1.06);
 }
 
 .product-card__sizes-inline {
   display: none;
   flex-wrap: wrap;
   gap: 0.4rem;
-  padding: 0 1rem 1rem;
+  padding: 0 0.9rem 1rem;
 }
 
 @media (hover: none) {
@@ -98,6 +312,143 @@ body {
   .product-card__sizes-inline {
     display: flex;
   }
+}
+
+/* Grids fade their cards in one after another, including after switching
+   category on the home page. */
+.stagger-in > * {
+  animation: rise-in 0.6s var(--ease-out-soft) both;
+}
+
+.stagger-in > :nth-child(2) { animation-delay: 60ms; }
+.stagger-in > :nth-child(3) { animation-delay: 120ms; }
+.stagger-in > :nth-child(4) { animation-delay: 180ms; }
+.stagger-in > :nth-child(5) { animation-delay: 240ms; }
+.stagger-in > :nth-child(6) { animation-delay: 300ms; }
+.stagger-in > :nth-child(7) { animation-delay: 360ms; }
+.stagger-in > :nth-child(n + 8) { animation-delay: 420ms; }
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+/* Sections rise in once as they scroll into view (see RevealOnScroll). Only
+   hidden when scripts run, so nothing is lost without them. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.9s var(--ease-out-soft),
+      transform 0.9s var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  [data-reveal][data-shown] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 3D tilt that follows the pointer (see Tilt). Children marked with
+   `--depth` float above the surface by that many pixels. */
+.tilt {
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.7s var(--ease-out-soft);
+}
+
+.tilt[data-tilting] {
+  transition-duration: 0.15s;
+}
+
+.tilt [style*="--depth"] {
+  transform: translateZ(calc(var(--depth) * 1px));
+}
+
+/* A soft light that follows the pointer across a tilted card. */
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--gx, 50%) var(--gy, 50%),
+    rgb(255 255 255 / 0.28),
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.tilt[data-tilting] .tilt-glare {
+  opacity: 1;
+}
+
+/* Hero photo: settles in from a slight zoom on load. */
+.hero-photo {
+  animation: hero-settle 2.6s var(--ease-out-soft) both;
+}
+
+@keyframes hero-settle {
+  from {
+    transform: scale(1.09);
+  }
+}
+
+.hero-rise {
+  animation: rise-in 1s var(--ease-out-soft) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+/* The scroll cue's line, drawing downwards on a loop. */
+.scroll-cue {
+  animation: scroll-cue 2.2s var(--ease-out-soft) infinite;
+  transform-origin: top;
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  51% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Grain over the sage story section, to match the scrapbook paper. */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .3  0 0 0 0 .38  0 0 0 0 .28  0 0 0 .2 0'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
 }
 
 /* Cart celebrations when the recommended piece unlocks the discount. */
@@ -191,19 +542,34 @@ body {
     scroll-behavior: auto;
   }
 
+  .site-header,
+  .site-header__bar,
+  .product-card,
   .product-card__photo img,
-  .product-card__sizes {
+  .product-card__sizes,
+  .tilt {
     transition: none;
   }
 
   .heart-float,
   .sparkle,
   .board-in,
-  .offer-appear > p {
+  .offer-appear > p,
+  .stagger-in > *,
+  .hero-photo,
+  .hero-rise,
+  .scroll-cue,
+  .animate-marquee {
     animation: none;
   }
 
+  .product-card:hover,
+  .product-card:focus-within,
   .product-card:hover .product-card__photo img {
+    transform: none;
+  }
+
+  .tilt {
     transform: none;
   }
 }

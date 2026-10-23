@@ -29,7 +29,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Polaroid({
+export function Polaroid({
   id,
   caption,
   className,
@@ -72,7 +72,7 @@ function Polaroid({
   );
 }
 
-function Sparkle({ className, style }: { className?: string; style?: React.CSSProperties }) {
+export function Sparkle({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={`absolute ${className ?? ""}`} style={style}>
       <path d="M12 0c.8 6.6 5.4 11.2 12 12-6.6.8-11.2 5.4-12 12-.8-6.6-5.4-11.2-12-12C6.6 11.2 11.2 6.6 12 0Z" />
@@ -80,7 +80,7 @@ function Sparkle({ className, style }: { className?: string; style?: React.CSSPr
   );
 }
 
-function CherrySticker({ className }: { className: string }) {
+export function CherrySticker({ className }: { className: string }) {
   return (
     <div
       className={`absolute z-[5] grid -rotate-12 place-items-center rounded-full bg-white shadow-[0_0_0_3px_#fff,0_10px_20px_-10px_rgb(74_20_32/0.45)] ${className}`}

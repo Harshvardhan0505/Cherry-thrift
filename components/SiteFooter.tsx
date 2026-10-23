@@ -1,75 +1,55 @@
-import Link from "next/link";
+import Image from "next/image";
+import logo from "@/public/brand/logo.png";
 import { categories } from "@/lib/products";
 import { site } from "@/lib/site";
-import { InstagramIcon } from "./InstagramIcon";
+import HalftoneWordmarkFooter, { type FooterColumn } from "./effects/halftone-wordmark-footer";
 
-const headingClass = "font-serif text-3xl text-cherry";
-const linkClass = "underline-offset-4 hover:text-cherry hover:underline";
+const columns: FooterColumn[] = [
+  {
+    title: "Shop",
+    links: categories.map((category) => ({ label: category.label, href: `/${category.slug}` })),
+  },
+  {
+    title: "About",
+    links: [
+      { label: "Our story", href: "/about" },
+      { label: "Blog", href: site.blogUrl },
+    ],
+  },
+  {
+    title: "Contact",
+    links: [
+      { label: site.contact.email, href: `mailto:${site.contact.email}` },
+      { label: `Instagram ${site.instagram.handle}`, href: site.instagram.url, external: true },
+    ],
+  },
+];
 
+// "cherry" printed huge in blush dots along the bottom, on deep wine. The dots
+// part around the pointer and warm to cherry pink. Shared by every page.
 export function SiteFooter() {
   return (
-    <footer id="contact" className="scroll-mt-8 bg-white text-wine">
-      <div className="grid gap-x-10 gap-y-12 px-[6vw] pb-10 pt-16 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.7fr_1.3fr]">
-        <div>
-          <h2 className={headingClass}>Shop</h2>
-          <ul className="mt-6 space-y-3">
-            {categories.map((category) => (
-              <li key={category.slug}>
-                <Link href={`/${category.slug}`} className={linkClass}>
-                  {category.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h2 className={headingClass}>About</h2>
-          <ul className="mt-6 space-y-3">
-            <li>
-              <Link href="/about" className={linkClass}>
-                Our story
-              </Link>
-            </li>
-            <li>
-              <Link href={site.blogUrl} className={linkClass}>
-                Blog
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 className={headingClass}>Contact</h2>
-          <ul className="mt-6 space-y-3">
-            <li>{site.contact.name}</li>
-            <li>
-              Email:{" "}
-              <a
-                href={`mailto:${site.contact.email}`}
-                className={`[overflow-wrap:anywhere] ${linkClass}`}
-              >
-                {site.contact.email}
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 className={headingClass}>Connect with us</h2>
-          <a
-            href={site.instagram.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`mt-6 inline-flex items-center gap-3 ${linkClass}`}
-          >
-            <InstagramIcon className="size-6 text-cherry" />
-            {site.instagram.handle}
-          </a>
-        </div>
-      </div>
-
-      <p className="mx-[6vw] border-t border-petal py-5 text-sm text-rose">© {site.name}</p>
-    </footer>
+    <HalftoneWordmarkFooter
+      id="contact"
+      wordmark="cherry"
+      // White on the dark footer.
+      label={<Image src={logo} alt={site.name} sizes="160px" className="h-auto w-28 brightness-0 invert md:w-32" />}
+      meta="Tops · Skirts · Purses"
+      statement={<p>{site.tagline}</p>}
+      columns={columns}
+      note={`© ${new Date().getFullYear()} ${site.name}`}
+      palette={{ background: "#3d0f1a", ink: "#fce8ec", warm: "#ff7d9c" }}
+      // Canvas fonts need the real family name; next/font registers this one.
+      fontFamily='"Instrument Serif", Georgia, serif'
+      fontWeight={400}
+      monoFamily="var(--font-jost), system-ui, sans-serif"
+      dotGap={5}
+      crop={0.1}
+      // The word is fitted to the width, so its height scales with vw. The
+      // last term is a 700px floor up to 720px wide, where the link columns
+      // stack two-up and stand taller; it drops to nothing just above that.
+      height="max(560px, calc(320px + 30vw), clamp(0px, calc((740px - 100vw) * 50), 700px))"
+      className="scroll-mt-8"
+    />
   );
 }
