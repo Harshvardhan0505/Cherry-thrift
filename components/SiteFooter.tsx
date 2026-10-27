@@ -1,75 +1,49 @@
-import Link from "next/link";
+import HalftoneWordmarkFooter, { type FooterColumn } from "@/components/ui/halftone-wordmark-footer";
 import { categories } from "@/lib/products";
 import { site } from "@/lib/site";
-import { InstagramIcon } from "./InstagramIcon";
 
-const headingClass = "font-serif text-3xl text-cherry";
-const linkClass = "underline-offset-4 hover:text-cherry hover:underline";
+const columns: FooterColumn[] = [
+  {
+    title: "Shop",
+    links: categories.map((category) => ({ label: category.label, href: `/${category.slug}` })),
+  },
+  {
+    title: "About",
+    links: [
+      { label: "Our story", href: "/about" },
+      { label: "Blog", href: site.blogUrl },
+    ],
+  },
+  {
+    title: "Contact",
+    links: [
+      { label: "Email us", href: `mailto:${site.contact.email}` },
+      { label: "Instagram", href: site.instagram.url },
+    ],
+  },
+];
 
+// The big "cherry thrifts" printed in dots, in the shop's wine and blush;
+// dots pushed by the pointer warm to cherry.
+// The header's "Contact" link scrolls here.
 export function SiteFooter() {
   return (
-    <footer id="contact" className="scroll-mt-8 bg-white text-wine">
-      <div className="grid gap-x-10 gap-y-12 px-[6vw] pb-10 pt-16 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.7fr_1.3fr]">
-        <div>
-          <h2 className={headingClass}>Shop</h2>
-          <ul className="mt-6 space-y-3">
-            {categories.map((category) => (
-              <li key={category.slug}>
-                <Link href={`/${category.slug}`} className={linkClass}>
-                  {category.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h2 className={headingClass}>About</h2>
-          <ul className="mt-6 space-y-3">
-            <li>
-              <Link href="/about" className={linkClass}>
-                Our story
-              </Link>
-            </li>
-            <li>
-              <Link href={site.blogUrl} className={linkClass}>
-                Blog
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 className={headingClass}>Contact</h2>
-          <ul className="mt-6 space-y-3">
-            <li>{site.contact.name}</li>
-            <li>
-              Email:{" "}
-              <a
-                href={`mailto:${site.contact.email}`}
-                className={`[overflow-wrap:anywhere] ${linkClass}`}
-              >
-                {site.contact.email}
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 className={headingClass}>Connect with us</h2>
-          <a
-            href={site.instagram.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`mt-6 inline-flex items-center gap-3 ${linkClass}`}
-          >
-            <InstagramIcon className="size-6 text-cherry" />
-            {site.instagram.handle}
-          </a>
-        </div>
-      </div>
-
-      <p className="mx-[6vw] border-t border-petal py-5 text-sm text-rose">© {site.name}</p>
-    </footer>
+    <div id="contact" className="scroll-mt-8">
+      <HalftoneWordmarkFooter
+        wordmark="cherry thrifts"
+        label={site.name}
+        meta="Pre-loved, hand-picked"
+        columns={columns}
+        palette={{ background: "#4a1420", ink: "#fce8ec", warm: "#b5123e" }}
+        fontFamily='"Instrument Serif", Georgia, serif'
+        fontWeight={400}
+        monoFamily="var(--font-jost), system-ui, sans-serif"
+        crop={0.12}
+        dotGap={5}
+        // The word is as wide as the screen, so it's shorter on phones: the
+        // footer shrinks with it rather than leaving a gap above.
+        height="clamp(340px, 24vw + 150px, 500px)"
+      />
+    </div>
   );
 }
