@@ -2,13 +2,17 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore } from "react";
 import { cartStore, orderPrices } from "@/lib/cart";
-import { getProduct, type Product } from "@/lib/products";
+import { getSizes, type Product } from "@/lib/products";
 import { CartDrawer } from "./CartDrawer";
 
 export type CartLine = { product: Product; size: string; recommended: boolean };
 
 type Cart = {
+  // Every piece in the shop, for the recommendation.
+  catalog: Product[];
   lines: CartLine[];
+  // Pieces this shopper had in their cart that someone else has since bought.
+  soldOut: Product[];
   // Sum of the prices, the order discount (0 unless the recommended piece is
   // in the cart) and what is owed.
   subtotal: number;
@@ -37,7 +41,9 @@ export function useCart(): Cart {
   return cart;
 }
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+// `catalog` comes from the server (Sanity), so the cart can show pieces and
+// leave out any that are no longer in the shop.
+export function CartProvider({ catalog, children }: { catalog: Product[]; children: React.ReactNode }) {
   const items = useSyncExternalStore(
     cartStore.subscribe,
     cartStore.getSnapshot,
@@ -51,14 +57,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const cart = useMemo<Cart>(() => {
     const lines = items.flatMap((item) => {
-      const product = getProduct(item.id);
-      return product ? [{ product, size: item.size, recommended: item.recommended }] : [];
+      const product = catalog.find((piece) => piece.id === item.id);
+      return product && !product.sold && getSizes(product).includes(item.size)
+        ? [{ product, size: item.size, recommended: item.recommended }]
+        : [];
+    });
+    const soldOut = items.flatMap((item) => {
+      const product = catalog.find((piece) => piece.id === item.id);
+      return product?.sold ? [product] : [];
     });
     const prices = orderPrices(
       lines.map((line) => ({ price: line.product.price, recommended: line.recommended })),
     );
     return {
+      catalog,
       lines,
+      soldOut,
       ...prices,
       isOpen,
       open,
@@ -81,7 +95,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       sizeInCart: (id) => items.find((item) => item.id === id)?.size,
       celebration,
     };
-  }, [items, isOpen, celebration, open, close]);
+  }, [catalog, items, isOpen, celebration, open, close]);
 
   return (
     <CartContext.Provider value={cart}>

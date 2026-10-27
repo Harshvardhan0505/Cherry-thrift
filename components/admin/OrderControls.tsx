@@ -68,8 +68,12 @@ export function OrderFilters({ query }: { query: OrderQuery }) {
 // The main "next step" button, cancel, and a quiet way to fix mistakes.
 export function StatusControls({ orderId, status }: { orderId: string; status: OrderStatus }) {
   const [pending, startTransition] = useTransition();
+  const [problem, setProblem] = useState<string | null>(null);
   const next = NEXT_STEP[status];
-  const move = (to: OrderStatus) => startTransition(() => setOrderStatus(orderId, to));
+  const move = (to: OrderStatus) =>
+    startTransition(async () => {
+      setProblem((await setOrderStatus(orderId, to)).error ?? null);
+    });
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
@@ -106,6 +110,7 @@ export function StatusControls({ orderId, status }: { orderId: string; status: O
           ))}
         </select>
       </label>
+      {problem && <p role="alert" className="w-full text-sm text-cherry">{problem}</p>}
     </div>
   );
 }

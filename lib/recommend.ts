@@ -1,4 +1,4 @@
-import { products, type Colour, type Product } from "./products";
+import type { Colour, Product } from "./products";
 
 // Colours that go with almost anything.
 const NEUTRALS = new Set<Colour>(["white", "cream", "black", "beige", "brown", "denim"]);
@@ -79,8 +79,11 @@ function cartSeed(inCart: Product[]): number {
 // picked yet (a top for a skirt, then a purse to finish the look).
 export function recommendFor(
   inCart: Product[],
+  products: Product[],
 ): { product: Product; goesWith: Product } | undefined {
   if (inCart.length === 0) return undefined;
+  // Sold pieces can't be added, so they're never suggested.
+  products = products.filter((product) => !product.sold);
   const taken = new Set(inCart.map((product) => product.id));
   const pickedCategories = new Set(inCart.map((product) => product.category));
 

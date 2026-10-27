@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Caveat, Instrument_Serif, Jost } from "next/font/google";
 import { CartProvider } from "@/components/CartProvider";
+import { getCatalog } from "@/lib/catalog";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -31,7 +32,9 @@ export const metadata: Metadata = {
   description: site.description,
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Cached, so this is part of the prerendered page rather than a wait.
+  const catalog = await getCatalog();
   return (
     <html
       lang="en"
@@ -39,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col font-sans">
         {/* Each route group adds its own header (and footer) around the page. */}
-        <CartProvider>{children}</CartProvider>
+        <CartProvider catalog={catalog}>{children}</CartProvider>
       </body>
     </html>
   );

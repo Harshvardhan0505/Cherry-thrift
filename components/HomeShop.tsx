@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { categories, getProducts, type CategorySlug } from "@/lib/products";
+import { categories, type CategorySlug, type Product } from "@/lib/products";
 import { ProductGrid } from "./ProductGrid";
 import { tabClass } from "./tabs";
 
 const FEATURED = 4;
 
-export function HomeShop() {
+// `products` is the whole catalogue; the tabs show a few from each category.
+export function HomeShop({ products }: { products: Product[] }) {
   const [active, setActive] = useState<CategorySlug>("tops");
   const category = categories.find((c) => c.slug === active)!;
 
@@ -37,7 +38,7 @@ export function HomeShop() {
         aria-labelledby={`tab-${active}`}
         className="mt-12"
       >
-        <ProductGrid products={getProducts(active).slice(0, FEATURED)} />
+        <ProductGrid products={products.filter((product) => product.category === active).slice(0, FEATURED)} />
       </div>
 
       <p className="mt-24 text-center">

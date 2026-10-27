@@ -1,8 +1,9 @@
 import "server-only";
 import type { SavedAddress } from "./auth";
 import { orderPrices, sanitize } from "./cart";
+import { findProduct, getFreshCatalog } from "./catalog";
+import type { Product } from "./products";
 import { matchState } from "./india";
-import { getProduct } from "./products";
 import { supabase } from "./supabase";
 
 import type { OrderStatus } from "./order-status";
@@ -81,7 +82,11 @@ export type NewOrder = { customerId: string; cart: unknown; details: Record<stri
 // Returns the new order's id, or a message for the shopper. The delivery
 // address is saved to the account to fill in checkout next time.
 export async function createOrder({ customerId, cart, details }: NewOrder): Promise<{ id: string } | { error: string }> {
-  const lines = sanitize(cart).map((item) => ({ ...item, product: getProduct(item.id)! }));
+  const catalog = await getFreshCatalog();
+  const lines = sanitize(cart, (id) => findProduct(catalog, id)).map((item) => ({
+    ...item,
+    product: findProduct(catalog, item.id)!,
+  }));
   if (lines.length === 0) return { error: "Your cart is empty." };
 
   const field = (name: string, max = 200) => String(details[name] ?? "").trim().slice(0, max);
@@ -111,12 +116,17 @@ export async function createOrder({ customerId, cart, details }: NewOrder): Prom
   }));
   const prices = orderPrices(lines.map(({ product, recommended }) => ({ price: product.price, recommended })));
 
-  const { data, error } = await supabase()
-    .from("orders")
-    .insert({ ...customer, customer_id: customerId, items, ...prices })
-    .select("id")
-    .single();
-  if (error) throw error;
+  // Saves the order and marks its pieces sold together; if any piece was
+  // sold a moment ago, nothing is saved.
+  const pieceIds = items.map((item) => item.id);
+  const { data: orderId, error } = await supabase().rpc("place_order", {
+    new_order: { ...customer, customer_id: customerId, items, ...prices },
+    piece_ids: pieceIds,
+  });
+  if (error) {
+    if (error.code === "23505") return { error: await alreadySold(pieceIds, catalog) };
+    throw error;
+  }
 
   const address: SavedAddress = {
     firstName: customer.first_name,
@@ -130,5 +140,13 @@ export async function createOrder({ customerId, cart, details }: NewOrder): Prom
   const saved = await supabase().from("customers").update({ address }).eq("id", customerId);
   // The order is in; a missed address only means typing it again next time.
   if (saved.error) console.error("Couldn't save address", saved.error);
-  return { id: data.id };
+  return { id: orderId as string };
+}
+
+// Which of these pieces someone else just bought, as a message for the shopper.
+async function alreadySold(pieceIds: string[], catalog: Product[]): Promise<string> {
+  const { data } = await supabase().from("sold_pieces").select("piece_id").in("piece_id", pieceIds);
+  const names = (data ?? []).map((row) => findProduct(catalog, row.piece_id)?.name ?? "A piece");
+  const list = names.length > 0 ? names.join(" and ") : "A piece in your cart";
+  return `Oh no, ${list} was just snapped up by someone else. Please remove it from your cart to place your order.`;
 }

@@ -1,4 +1,4 @@
-import { getProduct, getSizes } from "./products";
+import { getSizes, type Product } from "./products";
 
 // One line per product: every piece is a one-off, so a product is either in
 // the cart in a single size or not in it at all. `recommended` marks the piece
@@ -26,18 +26,23 @@ const EMPTY: CartItem[] = [];
 let cache: CartItem[] | null = null;
 const listeners = new Set<() => void>();
 
-// Drops anything that no longer matches the catalogue.
-export function sanitize(value: unknown): CartItem[] {
+// Tidies a saved or submitted cart: one line per piece, at most one
+// recommendation. Given the catalogue, it also drops pieces that are gone and
+// sizes they don't come in.
+export function sanitize(value: unknown, findProduct?: (id: string) => Product | undefined): CartItem[] {
   if (!Array.isArray(value)) return EMPTY;
   const seen = new Set<string>();
   const items: CartItem[] = [];
   for (const entry of value) {
-    const product = typeof entry?.id === "string" ? getProduct(entry.id) : undefined;
-    if (!product || seen.has(product.id) || !getSizes(product).includes(entry.size)) continue;
-    seen.add(product.id);
+    if (typeof entry?.id !== "string" || typeof entry.size !== "string" || seen.has(entry.id)) continue;
+    if (findProduct) {
+      const product = findProduct(entry.id);
+      if (!product || !getSizes(product).includes(entry.size)) continue;
+    }
+    seen.add(entry.id);
     // Only one piece per order counts as the recommendation.
     const recommended = entry.recommended === true && !items.some((item) => item.recommended);
-    items.push({ id: product.id, size: entry.size, recommended });
+    items.push({ id: entry.id, size: entry.size, recommended });
   }
   return items;
 }

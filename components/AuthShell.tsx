@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getProduct } from "@/lib/products";
+import { findProduct, getCatalog } from "@/lib/catalog";
 import { CherryIcon } from "./CherryIcon";
 import { RibbonBow } from "./RibbonBow";
 
@@ -29,7 +29,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Polaroid({
+async function Polaroid({
   id,
   caption,
   className,
@@ -49,7 +49,8 @@ function Polaroid({
   eager?: boolean;
   children?: React.ReactNode;
 }) {
-  const product = getProduct(id);
+  // If the piece is ever removed from the shop, its polaroid just isn't shown.
+  const product = findProduct(await getCatalog(), id);
   if (!product) return null;
   return (
     <figure

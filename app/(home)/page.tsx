@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomeShop } from "@/components/HomeShop";
+import { getCatalog } from "@/lib/catalog";
 import { site } from "@/lib/site";
 
-export default function Home() {
+export default async function Home() {
+  const catalog = await getCatalog();
   return (
     <>
       {/* The background matches the photo's wall, so it reads as one surface
@@ -34,7 +36,7 @@ export default function Home() {
         </div>
       </section>
 
-      <HomeShop />
+      <HomeShop products={catalog} />
 
       <section className="bg-sage px-[6vw] py-20">
         <p className="mx-auto max-w-3xl text-center font-serif text-4xl leading-tight text-wine md:text-5xl">

@@ -1,6 +1,8 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { getCustomer } from "@/lib/auth";
+import { SOLD_TAG } from "@/lib/catalog";
 import { createOrder } from "@/lib/orders";
 
 // Places the order from the checkout form. Anyone can call this directly, so
@@ -16,7 +18,10 @@ export async function placeOrder(cart: unknown, details: unknown): Promise<{ id:
         )
       : {};
   try {
-    return await createOrder({ customerId: customer.id, cart, details: fields });
+    const result = await createOrder({ customerId: customer.id, cart, details: fields });
+    // Its pieces are sold now: show that straight away.
+    if ("id" in result) updateTag(SOLD_TAG);
+    return result;
   } catch (error) {
     console.error("Couldn't place order", error);
     return { error: "We couldn't place your order just now. Please try again in a moment." };

@@ -15,7 +15,7 @@ import { RewardBanner } from "./RewardBanner";
 import { SizeButtons } from "./SizeButtons";
 
 export function CartDrawer() {
-  const { lines, subtotal, discount, total, isOpen, close, remove, clear, celebration } = useCart();
+  const { catalog, lines, soldOut, subtotal, discount, total, isOpen, close, remove, clear, celebration } = useCart();
   const closeButton = useRef<HTMLButtonElement>(null);
   const scrollArea = useRef<HTMLDivElement>(null);
 
@@ -35,7 +35,7 @@ export function CartDrawer() {
 
   // One recommendation per order: once it is in the cart, stop offering.
   const unlocked = lines.some((line) => line.recommended);
-  const suggestion = unlocked ? undefined : recommendFor(lines.map((line) => line.product));
+  const suggestion = unlocked ? undefined : recommendFor(lines.map((line) => line.product), catalog);
   const recommendation = suggestion?.product;
 
   return (
@@ -72,6 +72,20 @@ export function CartDrawer() {
         </header>
 
         <div ref={scrollArea} className="flex-1 overflow-y-auto px-6 pb-6">
+          {soldOut.length > 0 && (
+            <div role="status" className="mb-4 rounded-lg bg-shell px-4 py-3 text-sm text-rose">
+              {soldOut.map((product) => product.name).join(" and ")}{" "}
+              {soldOut.length === 1 ? "was" : "were"} just snapped up by someone else, so{" "}
+              {soldOut.length === 1 ? "it's" : "they're"} no longer in your cart ♡{" "}
+              <button
+                type="button"
+                onClick={() => soldOut.forEach((product) => remove(product.id))}
+                className="cursor-pointer underline underline-offset-4 hover:text-cherry"
+              >
+                OK
+              </button>
+            </div>
+          )}
           {lines.length > 0 && (recommendation || unlocked) && (
             <RewardBanner unlocked={unlocked} celebrating={celebration !== null} />
           )}

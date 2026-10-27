@@ -83,6 +83,11 @@ body {
   transform: scale(1.04);
 }
 
+/* A sold piece stays still: there's nothing to add. */
+.product-card--sold:hover .product-card__photo img {
+  transform: none;
+}
+
 .product-card__sizes-inline {
   display: none;
   flex-wrap: wrap;

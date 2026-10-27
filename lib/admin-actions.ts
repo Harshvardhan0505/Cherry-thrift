@@ -1,9 +1,10 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getStaff, startStaffSession, endStaffSession, staffCount, temporaryPassword, type Staff } from "./admin-auth";
 import { createPasswordReset, hashPassword, verifyPassword } from "./auth";
+import { SOLD_TAG } from "./catalog";
 import { COURIERS, indiaPostNumber, isOrderStatus, type OrderStatus } from "./order-status";
 import { siteUrl } from "./site-url";
 import { supabase } from "./supabase";
@@ -92,14 +93,36 @@ const STATUS_MESSAGES: Record<OrderStatus, string> = {
   cancelled: "Cancelled",
 };
 
-export async function setOrderStatus(orderId: string, status: string) {
+export async function setOrderStatus(orderId: string, status: string): Promise<{ error?: string }> {
   const staff = await staffOrThrow();
   if (!isOrderStatus(status)) throw new Error(`Unknown status: ${status}`);
-  const { data, error } = await supabase().from("orders").update({ status }).eq("id", orderId).select("id");
+  const db = supabase();
+  const { data: order, error: readError } = await db.from("orders").select("status, items").eq("id", orderId).maybeSingle();
+  if (readError) throw readError;
+  if (!order) throw new Error("Order not found.");
+
+  // Cancelling puts the pieces back on sale; reopening a cancelled order
+  // claims them again, unless someone else has bought one since.
+  if (status === "cancelled" && order.status !== "cancelled") {
+    const freed = await db.from("sold_pieces").delete().eq("order_id", orderId);
+    if (freed.error) throw freed.error;
+  } else if (order.status === "cancelled" && status !== "cancelled") {
+    const pieces = (order.items as { id: string }[]).map((item) => ({ piece_id: item.id, order_id: orderId }));
+    const claimed = await db.from("sold_pieces").insert(pieces);
+    if (claimed.error) {
+      if (claimed.error.code === "23505") {
+        return { error: "Can't reopen this order: one of its pieces has been bought by someone else since." };
+      }
+      throw claimed.error;
+    }
+  }
+
+  const { error } = await db.from("orders").update({ status }).eq("id", orderId);
   if (error) throw error;
-  if (data.length === 0) throw new Error("Order not found.");
   await logEvent(orderId, staff, STATUS_MESSAGES[status]);
+  updateTag(SOLD_TAG);
   refresh();
+  return {};
 }
 
 export async function setOrderPaid(orderId: string, paid: boolean) {

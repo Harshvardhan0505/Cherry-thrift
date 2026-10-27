@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { categories, getProducts, type CategorySlug } from "@/lib/products";
+import { getCatalog } from "@/lib/catalog";
+import { categories, type CategorySlug } from "@/lib/products";
 import { ProductGrid } from "./ProductGrid";
 import { tabClass } from "./tabs";
 
@@ -13,9 +14,9 @@ export function categoryMetadata(slug: CategorySlug): Metadata {
   return { title: category.label, description: category.blurb };
 }
 
-export function CategoryView({ slug }: { slug: CategorySlug }) {
+export async function CategoryView({ slug }: { slug: CategorySlug }) {
   const category = findCategory(slug);
-  const products = getProducts(slug);
+  const products = (await getCatalog()).filter((product) => product.category === slug);
 
   return (
     <div className="px-[6vw] pb-32 pt-14">
