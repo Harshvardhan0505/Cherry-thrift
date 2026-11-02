@@ -51,7 +51,7 @@ export function HomeShop({ products }: { products: Product[] }) {
   }, [active]);
 
   return (
-    <section aria-labelledby="home-shop-title" className="px-[6vw] pb-28 pt-14 md:pt-16">
+    <section id="shop" aria-labelledby="home-shop-title" className="scroll-mt-4 px-[6vw] pb-28 pt-14 md:pt-16">
       <div className="mb-10 text-center md:mb-12">
         <RevealText
           id="home-shop-title"

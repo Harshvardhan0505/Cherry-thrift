@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { MetalButton } from "@/components/ui/liquid-glass-button";
 import { RECOMMENDATION_DISCOUNT } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { recommendFor } from "@/lib/recommend";
@@ -183,13 +183,16 @@ export function CartDrawer() {
         {lines.length > 0 && (
           <footer className="border-t border-petal bg-blush px-6 pb-6 pt-5">
             <OrderTotal lines={lines} subtotal={subtotal} discount={discount} total={total} />
-            <Link
+            {/* The main action, in polished cherry. */}
+            <MetalButton
+              variant="cherry"
               href="/checkout"
               onClick={close}
-              className="mt-5 block rounded-md bg-cherry px-6 py-4 text-center text-lg font-medium uppercase tracking-[0.12em] text-white transition-colors hover:bg-wine"
+              wrapperClassName="mt-5 flex w-full"
+              className="h-14 w-full text-lg font-medium uppercase tracking-[0.12em]"
             >
               Start order
-            </Link>
+            </MetalButton>
             <p className="mt-3 text-center text-sm text-rose">
               Delivery is agreed with you on WhatsApp.
             </p>

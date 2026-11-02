@@ -14,6 +14,7 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import { LiquidButton } from './liquid-glass-button';
 import 'lenis/dist/lenis.css';
 
 // Back to front. Each moves by a share of its own height, so the numbers
@@ -145,6 +146,23 @@ export function ParallaxComponent() {
               <Image src="/photos/rail-blossom.webp" alt="" fill sizes="100vw" loading="eager" className="object-cover" />
             </div>
           </div>
+        </div>
+        {/* Glass over the skirts, just above where the shop sheet starts; it
+            glides down to the shop. Positioned by the wrapper, as the button
+            sets its own (relative) position. */}
+        <div className="absolute bottom-[calc(12svh+28px)] left-1/2 z-40 -translate-x-1/2">
+          <LiquidButton
+            variant="light"
+            size="xl"
+            onClick={() =>
+              document.getElementById('shop')?.scrollIntoView({
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+              })
+            }
+            className="text-base tracking-wide"
+          >
+            Shop the rail <span aria-hidden="true">↓</span>
+          </LiquidButton>
         </div>
       </section>
     </div>

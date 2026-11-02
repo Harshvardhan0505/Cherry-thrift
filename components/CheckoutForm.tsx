@@ -11,6 +11,7 @@ import { formatPrice } from "@/lib/products";
 import { Autocomplete } from "./Autocomplete";
 import { useCart } from "./CartProvider";
 import { OrderTotal } from "./OrderTotal";
+import { MetalButton } from "@/components/ui/liquid-glass-button";
 
 const inputClass =
   "mt-1.5 w-full rounded-md border border-petal bg-white px-4 py-3 text-wine placeholder:text-rose/60 focus:border-cherry focus:outline-none focus:ring-1 focus:ring-cherry";
@@ -305,13 +306,16 @@ export function CheckoutForm({
               </div>
             </fieldset>
 
-            <button
+            {/* The final step, in the same polished cherry as Start order. */}
+            <MetalButton
+              variant="cherry"
               type="submit"
               disabled={placing}
-              className="mt-10 w-full cursor-pointer rounded-md bg-cherry px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-wine disabled:cursor-wait disabled:opacity-70"
+              wrapperClassName="mt-10 flex w-full"
+              className="h-14 w-full text-lg font-medium disabled:cursor-wait disabled:opacity-70"
             >
               {placing ? "Placing your order…" : "Place order"}
-            </button>
+            </MetalButton>
             {error && (
               <p role="alert" className="mt-3 text-center text-cherry">
                 {error}
