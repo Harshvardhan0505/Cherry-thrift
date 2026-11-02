@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Caveat, Instrument_Serif, Jost } from "next/font/google";
 import { CartProvider } from "@/components/CartProvider";
+import { INTRO_KEY } from "@/lib/motion";
 import { getCatalog } from "@/lib/catalog";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -14,6 +15,8 @@ const jost = Jost({
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
   weight: "400",
+  // Italic for the home page line, "Thrifted, *not basic*".
+  style: ["normal", "italic"],
   subsets: ["latin"],
 });
 
@@ -23,6 +26,8 @@ const caveat = Caveat({
   weight: ["500", "600"],
   subsets: ["latin"],
 });
+
+const INTRO_SEEN_SCRIPT = `try{if(sessionStorage.getItem("${INTRO_KEY}"))document.documentElement.classList.add("intro-seen")}catch(e){document.documentElement.classList.add("intro-seen")}`;
 
 export const metadata: Metadata = {
   title: {
@@ -39,7 +44,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${jost.variable} ${instrumentSerif.variable} ${caveat.variable} h-full antialiased`}
+      // The script below may add `intro-seen` before React loads.
+      suppressHydrationWarning
     >
+      <head>
+        {/* Runs before the first paint: the home page intro plays once per
+            visit, so skip it if it has already played in this tab. */}
+        <script dangerouslySetInnerHTML={{ __html: INTRO_SEEN_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col font-sans">
         {/* Each route group adds its own header (and footer) around the page. */}
         <CartProvider catalog={catalog}>{children}</CartProvider>

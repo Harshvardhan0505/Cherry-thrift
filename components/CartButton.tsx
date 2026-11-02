@@ -11,6 +11,8 @@ export function CartButton({ className = "text-cherry hover:text-wine" }: { clas
     <button
       type="button"
       onClick={open}
+      // Where the add-to-cart animation flies to.
+      data-cart-button
       aria-label={count === 0 ? "Open cart, empty" : `Open cart, ${count} ${count === 1 ? "item" : "items"}`}
       className={`relative cursor-pointer transition-colors ${className}`}
     >

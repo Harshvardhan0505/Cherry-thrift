@@ -1,5 +1,6 @@
 "use client";
 
+import { flyToCart } from "@/lib/fly-to-cart";
 import { getSizes, type Product } from "@/lib/products";
 import { useCart } from "./CartProvider";
 
@@ -9,12 +10,15 @@ export function SizeButtons({
   buttonClass,
   activeClass,
   recommended = false,
+  flyFrom,
 }: {
   product: Product;
   buttonClass: string;
   activeClass: string;
   // True on the cart's recommendation, where adding it unlocks the order discount.
   recommended?: boolean;
+  // The photo the add-to-cart animation starts from, when it isn't this card's.
+  flyFrom?: () => HTMLImageElement | null;
 }) {
   const { add, sizeInCart } = useCart();
   const chosen = sizeInCart(product.id);
@@ -27,7 +31,8 @@ export function SizeButtons({
           type="button"
           aria-label={`Add ${product.name} in ${size} to cart`}
           aria-pressed={size === chosen}
-          onClick={() => add(product.id, size, recommended)}
+          // On a product card, the photo flies into the bag before the cart opens.
+          onClick={(event) => add(product.id, size, recommended, recommended ? 0 : flyToCart(event.currentTarget, flyFrom?.()))}
           className={`${buttonClass} ${size === chosen ? activeClass : ""}`}
         >
           {size}

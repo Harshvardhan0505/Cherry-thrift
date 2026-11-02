@@ -14,6 +14,18 @@
   /* Warm paper and its hairlines, for the scrapbook log in pages. */
   --color-cream: #fbf3ef;
   --color-seam: #efd9dd;
+
+  /* The home page ribbon: its text is written twice, so sliding by half
+     loops seamlessly. */
+  --animate-marquee: marquee 38s linear infinite;
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 @theme inline {
@@ -24,6 +36,12 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Lenis smooths the scroll itself where it runs (the home page parallax);
+   the browser's own smoothing would fight it. */
+html.lenis {
+  scroll-behavior: auto;
 }
 
 body {
@@ -39,6 +57,7 @@ body {
 /* Product card: on hover or keyboard focus the lower half of the photo
    frosts over and offers the sizes. */
 .product-card {
+  height: 100%;
   overflow: hidden;
   border-radius: 10px;
   background: #fff;
@@ -103,6 +122,146 @@ body {
   .product-card__sizes-inline {
     display: flex;
   }
+}
+
+/* Product cards lift and tilt towards the mouse (HoverLift sets the transform). */
+.hover-lift {
+  height: 100%;
+  border-radius: 10px;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.35s ease;
+}
+
+.hover-lift[data-lifted] {
+  box-shadow: 0 24px 40px -20px rgb(74 20 32 / 0.4);
+}
+
+/* The home page's opening line: each letter rises into place in turn. */
+.hero-char {
+  display: inline-block;
+  animation: hero-rise 0.9s cubic-bezier(0.2, 0.75, 0.15, 1) both;
+  animation-delay: calc(var(--i) * 32ms + 250ms);
+}
+
+@keyframes hero-rise {
+  from {
+    transform: translateY(108%);
+  }
+}
+
+/* The home page intro (components/Intro.tsx), 1.6s in all: a cherry draws
+   itself on blush, then the two halves of the screen part like curtains.
+   Skipped once seen this visit (`intro-seen`, set before the first paint;
+   `intro-done`, set once it has played). */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  animation: intro-hide 0s linear 1.6s forwards;
+}
+
+.intro-seen .intro,
+.intro-done .intro {
+  display: none;
+}
+
+.intro__panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  background: var(--color-blush);
+}
+
+.intro__panel--left {
+  left: 0;
+  animation: intro-part-left 0.65s cubic-bezier(0.76, 0, 0.24, 1) 0.95s forwards;
+}
+
+.intro__panel--right {
+  right: 0;
+  animation: intro-part-right 0.65s cubic-bezier(0.76, 0, 0.24, 1) 0.95s forwards;
+}
+
+.intro__mark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  animation: intro-mark-out 0.35s ease-in 0.85s forwards;
+}
+
+.intro__lines > * {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: intro-draw 0.6s ease-out forwards;
+}
+
+.intro__lines > :nth-child(2) { animation-delay: 0.08s; }
+.intro__lines > :nth-child(3) { animation-delay: 0.16s; }
+.intro__lines > :nth-child(4) { animation-delay: 0.26s; }
+.intro__lines > :nth-child(5) { animation-delay: 0.32s; }
+
+.intro__fill {
+  opacity: 0;
+  animation: intro-fade 0.3s ease-out 0.62s forwards;
+}
+
+.intro__name {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-wine);
+  opacity: 0;
+  animation: intro-fade 0.4s ease-out 0.45s forwards;
+}
+
+@keyframes intro-hide {
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes intro-part-left {
+  to {
+    transform: translateX(-101%);
+  }
+}
+
+@keyframes intro-part-right {
+  to {
+    transform: translateX(101%);
+  }
+}
+
+@keyframes intro-mark-out {
+  to {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+@keyframes intro-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes intro-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+/* While the intro plays, the opening line waits for the curtains to part. */
+html:not(.intro-seen):not(.intro-done) .hero-char {
+  animation-delay: calc(var(--i) * 32ms + 1250ms);
 }
 
 /* Cart celebrations when the recommended piece unlocks the discount. */
@@ -201,7 +360,12 @@ body {
     transition: none;
   }
 
+  .intro {
+    display: none;
+  }
+
   .heart-float,
+  .hero-char,
   .sparkle,
   .board-in,
   .offer-appear > p {

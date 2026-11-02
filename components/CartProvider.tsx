@@ -21,8 +21,9 @@ type Cart = {
   isOpen: boolean;
   open: () => void;
   close: () => void;
-  // Puts the product in the cart in this size and shows the cart.
-  add: (id: string, size: string, recommended?: boolean) => void;
+  // Puts the product in the cart in this size and shows the cart, after
+  // `openDelay` ms if given (to let the add-to-cart animation play).
+  add: (id: string, size: string, recommended?: boolean, openDelay?: number) => void;
   remove: (id: string) => void;
   clear: () => void;
   sizeInCart: (id: string) => string | undefined;
@@ -77,7 +78,7 @@ export function CartProvider({ catalog, children }: { catalog: Product[]; childr
       isOpen,
       open,
       close,
-      add: (id, size, recommended) => {
+      add: (id, size, recommended, openDelay = 0) => {
         const unlocks =
           recommended &&
           !items.some((item) => item.recommended) &&
@@ -88,7 +89,8 @@ export function CartProvider({ catalog, children }: { catalog: Product[]; childr
           setCelebration({ key, id });
           setTimeout(() => setCelebration((now) => (now?.key === key ? null : now)), CELEBRATION_MS);
         }
-        setIsOpen(true);
+        if (openDelay > 0) setTimeout(() => setIsOpen(true), openDelay);
+        else setIsOpen(true);
       },
       remove: cartStore.remove,
       clear: cartStore.clear,
