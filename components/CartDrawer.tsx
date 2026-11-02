@@ -7,6 +7,7 @@ import { RECOMMENDATION_DISCOUNT } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { recommendFor } from "@/lib/recommend";
 import { useCart } from "./CartProvider";
+import { usePageTransition } from "./PageTransition";
 import { CherryIcon } from "./CherryIcon";
 import { HeartBurst } from "./HeartBurst";
 import { HeartIcon } from "./HeartIcon";
@@ -16,6 +17,7 @@ import { SizeButtons } from "./SizeButtons";
 
 export function CartDrawer() {
   const { catalog, lines, soldOut, subtotal, discount, total, isOpen, close, remove, clear, celebration } = useCart();
+  const { go } = usePageTransition();
   const closeButton = useRef<HTMLButtonElement>(null);
   const scrollArea = useRef<HTMLDivElement>(null);
 
@@ -40,6 +42,8 @@ export function CartDrawer() {
 
   return (
     <div
+      // Left out of the page transition's copy of the page: it's closing as the sweep starts.
+      data-transition-skip
       className={`fixed inset-0 z-50 ${isOpen ? "" : "pointer-events-none"}`}
       aria-hidden={!isOpen}
       inert={!isOpen}
@@ -187,7 +191,12 @@ export function CartDrawer() {
             <MetalButton
               variant="cherry"
               href="/checkout"
-              onClick={close}
+              // The curtain sweeps over, then on to checkout (or log in first).
+              onClick={(event) => {
+                event.preventDefault();
+                close();
+                go("/checkout");
+              }}
               wrapperClassName="mt-5 flex w-full"
               className="h-14 w-full text-lg font-medium uppercase tracking-[0.12em]"
             >

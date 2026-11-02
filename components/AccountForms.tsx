@@ -2,16 +2,27 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useActionState, useState, useSyncExternalStore } from "react";
+import { useActionState, useEffect, useState, useSyncExternalStore } from "react";
 import { logIn, requestPasswordReset, resetPassword, signUp, type AccountFormState } from "@/lib/account-actions";
 import { site } from "@/lib/site";
 import { LAST_ACTIVE_KEY } from "./MarkActive";
+import { usePageTransition } from "./PageTransition";
 
 const inputClass =
   "w-full rounded-2xl border border-seam bg-[#fffafb] px-[18px] py-3.5 text-wine placeholder:text-rose/50 transition focus:border-cherry focus:bg-white focus:outline-none focus:ring-4 focus:ring-cherry/8";
 const buttonClass =
   "mt-[26px] w-full cursor-pointer rounded-full bg-cherry py-[17px] font-medium tracking-[0.02em] text-white shadow-[0_12px_24px_-14px_rgb(181_18_62/0.9)] transition-colors hover:bg-wine disabled:cursor-wait disabled:opacity-70";
 const altLinkClass = "border-b border-petal font-medium text-wine transition-colors hover:text-cherry";
+
+// Petals cover the page while logging in or signing up, and blow past to the
+// next page; if the details were wrong, they blow past straight away.
+function useCurtain(state: AccountFormState) {
+  const { cover, uncover } = usePageTransition();
+  useEffect(() => {
+    if (state.error) uncover();
+  }, [state, uncover]);
+  return cover;
+}
 
 // Where to go after signing in: back to checkout when the cart sent them here.
 function useNext() {
@@ -141,6 +152,7 @@ export function LoginForm() {
   const next = useNext();
   const returning = useSyncExternalStore(noSubscribe, isReturning, () => false);
   const [state, action, pending] = useActionState(logIn, {});
+  const cover = useCurtain(state);
 
   return (
     <>
@@ -158,7 +170,7 @@ export function LoginForm() {
           </>
         )}
       </Heading>
-      <form action={action}>
+      <form action={action} onSubmit={() => cover()}>
         <input type="hidden" name="next" value={next} />
         <Field label="Phone or email">
           <input name="login" autoComplete="username" required defaultValue={state.values?.login} className={inputClass} />
@@ -193,6 +205,7 @@ export function LoginForm() {
 export function SignupForm() {
   const next = useNext();
   const [state, action, pending] = useActionState(signUp, {});
+  const cover = useCurtain(state);
 
   return (
     <>
@@ -200,7 +213,7 @@ export function SignupForm() {
       <Heading sub={next.startsWith("/checkout") ? "create your account to place your order ♡" : "it only takes a minute ♡"}>
         hi, <em className="text-cherry">gorgeous</em>
       </Heading>
-      <form action={action}>
+      <form action={action} onSubmit={() => cover()}>
         <input type="hidden" name="next" value={next} />
         <Field label="Name">
           <input name="name" autoComplete="name" required defaultValue={state.values?.name} className={inputClass} />

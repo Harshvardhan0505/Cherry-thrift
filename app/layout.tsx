@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Caveat, Instrument_Serif, Jost } from "next/font/google";
 import { CartProvider } from "@/components/CartProvider";
+import { PageTransitionProvider } from "@/components/PageTransition";
 import { INTRO_KEY } from "@/lib/motion";
 import { getCatalog } from "@/lib/catalog";
 import { site } from "@/lib/site";
@@ -54,7 +55,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col font-sans">
         {/* Each route group adds its own header (and footer) around the page. */}
-        <CartProvider catalog={catalog}>{children}</CartProvider>
+        <PageTransitionProvider>
+          <CartProvider catalog={catalog}>{children}</CartProvider>
+        </PageTransitionProvider>
       </body>
     </html>
   );
