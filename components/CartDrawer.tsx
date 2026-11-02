@@ -44,6 +44,9 @@ export function CartDrawer() {
     <div
       // Left out of the page transition's copy of the page: it's closing as the sweep starts.
       data-transition-skip
+      // The home page's smooth scrolling (Lenis) would otherwise take the wheel
+      // and scroll the page behind instead of the cart.
+      data-lenis-prevent
       className={`fixed inset-0 z-50 ${isOpen ? "" : "pointer-events-none"}`}
       aria-hidden={!isOpen}
       inert={!isOpen}
@@ -75,7 +78,7 @@ export function CartDrawer() {
           </button>
         </header>
 
-        <div ref={scrollArea} className="flex-1 overflow-y-auto px-6 pb-6">
+        <div ref={scrollArea} className="flex-1 overflow-y-auto overscroll-contain px-6 pb-6">
           {soldOut.length > 0 && (
             <div role="status" className="mb-4 rounded-lg bg-shell px-4 py-3 text-sm text-rose">
               {soldOut.map((product) => product.name).join(" and ")}{" "}
